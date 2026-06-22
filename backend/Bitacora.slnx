@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="Bitacora.API/Bitacora.API.csproj" />
+  <Project Path="Bitacora.Application/Bitacora.Application.csproj" />
+  <Project Path="Bitacora.Domain/Bitacora.Domain.csproj" />
+  <Project Path="Bitacora.Infrastructure/Bitacora.Infrastructure.csproj" />
+</Solution>
