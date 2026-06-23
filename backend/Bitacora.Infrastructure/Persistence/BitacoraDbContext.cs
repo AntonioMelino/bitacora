@@ -1,11 +1,13 @@
 using Bitacora.Domain.Entities;
+using Bitacora.Infrastructure.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Bitacora.Infrastructure.Persistence;
 
-public class BitacoraDbContext : DbContext
+public class BitacoraDbContext : IdentityDbContext<ApplicationUser>
 {
-    public BitacoraDbContext(DbContextOptions<BitacoraDbContext> options) 
+    public BitacoraDbContext(DbContextOptions<BitacoraDbContext> options)
         : base(options) { }
 
     public DbSet<Trip> Trips => Set<Trip>();
