@@ -459,3 +459,4 @@ Both CLAUDE.md and CLAUDE.es.md must be updated together.
 | Date | Branch merged | What was built |
 |---|---|---|
 | 2026-06-22 | — | Initial scaffold: solution structure, Trip entity, EF Core + Supabase migration, React + Vite frontend |
+| 2026-06-23 | feature/auth | Complete authentication system: ApplicationUser (Identity), AuthService with JWT generation, IAuthService interface, RegisterRequest/LoginRequest/AuthResponse/ApiResponse DTOs, AuthController with /register /login /me endpoints, AddIdentityTables migration applied to Supabase |
