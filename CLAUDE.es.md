@@ -513,3 +513,4 @@ Tanto CLAUDE.md como CLAUDE.es.md deben actualizarse juntos.
 | Fecha | Rama mergeada | Qué se construyó |
 |---|---|---|
 | 2026-06-22 | — | Scaffold inicial: estructura de la solución, entidad Trip, EF Core + migración a Supabase, frontend React + Vite |
+| 2026-06-23 | feature/auth | Sistema de autenticación completo: ApplicationUser (Identity), AuthService con generación de JWT, interfaz IAuthService, DTOs RegisterRequest/LoginRequest/AuthResponse/ApiResponse, AuthController con endpoints /register /login /me, migración AddIdentityTables aplicada a Supabase |
