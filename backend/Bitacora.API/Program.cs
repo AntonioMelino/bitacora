@@ -49,6 +49,7 @@ builder.Services.AddAuthentication(options =>
 });
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ITripService, TripService>();
 
 var app = builder.Build();
 
