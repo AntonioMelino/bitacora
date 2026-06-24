@@ -11,4 +11,7 @@ public class BitacoraDbContext : IdentityDbContext<ApplicationUser>
         : base(options) { }
 
     public DbSet<Trip> Trips => Set<Trip>();
+    public DbSet<ExpenseCategory> ExpenseCategories => Set<ExpenseCategory>();
+    public DbSet<PaymentMethod> PaymentMethods => Set<PaymentMethod>();
+    public DbSet<Currency> Currencies => Set<Currency>();
 }
