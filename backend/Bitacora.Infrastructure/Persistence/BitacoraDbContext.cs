@@ -15,4 +15,5 @@ public class BitacoraDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<ExpenseCategory> ExpenseCategories => Set<ExpenseCategory>();
     public DbSet<PaymentMethod> PaymentMethods => Set<PaymentMethod>();
     public DbSet<Currency> Currencies => Set<Currency>();
+    public DbSet<ItineraryItem> ItineraryItems => Set<ItineraryItem>();
 }
