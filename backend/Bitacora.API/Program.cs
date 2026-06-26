@@ -56,6 +56,7 @@ builder.Services.AddScoped<IPaymentMethodService, PaymentMethodService>();
 builder.Services.AddScoped<ICurrencyService, CurrencyService>();
 builder.Services.AddScoped<IItineraryItemService, ItineraryItemService>();
 builder.Services.AddScoped<IChecklistItemService, ChecklistItemService>();
+builder.Services.AddScoped<IAccommodationService, AccommodationService>();
 
 var app = builder.Build();
 
