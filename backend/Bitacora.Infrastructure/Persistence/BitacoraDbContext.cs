@@ -18,4 +18,6 @@ public class BitacoraDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<ItineraryItem> ItineraryItems => Set<ItineraryItem>();
     public DbSet<ChecklistItem> ChecklistItems => Set<ChecklistItem>();
     public DbSet<Accommodation> Accommodations => Set<Accommodation>();
+    public DbSet<City> Cities => Set<City>();
+    public DbSet<PlaceToVisit> PlacesToVisit => Set<PlaceToVisit>();
 }
