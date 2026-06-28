@@ -8,61 +8,51 @@ function formatDate(iso: string) {
 
 function TripCard({ trip, onDelete }: { trip: Trip; onDelete: (id: number) => void }) {
   const [confirmDelete, setConfirmDelete] = useState(false)
-  const [deleteError, setDeleteError] = useState('')
-
-  function handleDelete() {
-    setDeleteError('')
-    onDelete(trip.id)
-  }
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-[#1A1A2E]/8 p-5 flex flex-col gap-3 hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-2xl shadow-sm border border-foreground/8 p-5 flex flex-col gap-3 hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <h2 className="font-[Nunito,sans-serif] font-bold text-xl text-[#1A1A2E]">{trip.name}</h2>
+          <h2 className="font-heading font-bold text-xl text-foreground">{trip.name}</h2>
           {trip.description && (
-            <p className="text-sm text-[#1A1A2E]/60 mt-0.5 line-clamp-2">{trip.description}</p>
+            <p className="text-sm text-foreground/60 mt-0.5 line-clamp-2">{trip.description}</p>
           )}
         </div>
         <span
           className={`shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full ${
             trip.isInternational
-              ? 'bg-[#1B4FD8]/10 text-[#1B4FD8]'
-              : 'bg-[#22C55E]/10 text-[#16a34a]'
+              ? 'bg-secondary/10 text-secondary'
+              : 'bg-success/10 text-success-dark'
           }`}
         >
           {trip.isInternational ? '🌍 Internacional' : '🏠 Nacional'}
         </span>
       </div>
 
-      <div className="flex items-center gap-1.5 text-sm text-[#1A1A2E]/55">
+      <div className="flex items-center gap-1.5 text-sm text-foreground/55">
         <span>📅</span>
         <span>{formatDate(trip.startDate)} — {formatDate(trip.endDate)}</span>
       </div>
-
-      {deleteError && (
-        <p className="text-xs text-[#EF4444]">{deleteError}</p>
-      )}
 
       <div className="flex gap-2 pt-1">
         <button
           disabled
           title="Próximamente"
-          className="flex-1 py-2 rounded-xl bg-[#FF6B35]/40 text-white text-sm font-semibold cursor-not-allowed"
+          className="flex-1 py-2 rounded-xl bg-primary/40 text-white text-sm font-semibold cursor-not-allowed"
         >
           Ver viaje
         </button>
         {confirmDelete ? (
           <div className="flex gap-1">
             <button
-              onClick={handleDelete}
-              className="px-3 py-2 rounded-xl bg-[#EF4444] text-white text-sm font-semibold hover:bg-red-600 transition-colors"
+              onClick={() => onDelete(trip.id)}
+              className="px-3 py-2 rounded-xl bg-error text-white text-sm font-semibold hover:bg-error/80 transition-colors"
             >
               Confirmar
             </button>
             <button
               onClick={() => setConfirmDelete(false)}
-              className="px-3 py-2 rounded-xl border border-[#1A1A2E]/20 text-[#1A1A2E]/60 text-sm hover:bg-[#1A1A2E]/5 transition-colors"
+              className="px-3 py-2 rounded-xl border border-foreground/20 text-foreground/60 text-sm hover:bg-foreground/5 transition-colors"
             >
               No
             </button>
@@ -70,7 +60,7 @@ function TripCard({ trip, onDelete }: { trip: Trip; onDelete: (id: number) => vo
         ) : (
           <button
             onClick={() => setConfirmDelete(true)}
-            className="px-3 py-2 rounded-xl border border-[#1A1A2E]/20 text-[#1A1A2E]/50 text-sm hover:bg-[#EF4444]/10 hover:text-[#EF4444] hover:border-[#EF4444]/30 transition-colors"
+            className="px-3 py-2 rounded-xl border border-foreground/20 text-foreground/50 text-sm hover:bg-error/10 hover:text-error hover:border-error/30 transition-colors"
             aria-label="Eliminar viaje"
           >
             🗑️
@@ -117,59 +107,59 @@ function NewTripModal({ onClose, onCreated }: { onClose: () => void; onCreated: 
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
       <div className="w-full max-w-md bg-white rounded-3xl shadow-xl p-6">
         <div className="flex items-center justify-between mb-5">
-          <h2 className="font-[Nunito,sans-serif] font-bold text-xl text-[#1A1A2E]">Nuevo viaje</h2>
-          <button onClick={onClose} className="text-[#1A1A2E]/40 hover:text-[#1A1A2E] text-2xl leading-none">×</button>
+          <h2 className="font-heading font-bold text-xl text-foreground">Nuevo viaje</h2>
+          <button onClick={onClose} className="text-foreground/40 hover:text-foreground text-2xl leading-none">×</button>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 rounded-lg bg-[#EF4444]/10 border border-[#EF4444]/30 text-[#EF4444] text-sm">
+          <div className="mb-4 p-3 rounded-lg bg-error/10 border border-error/30 text-error text-sm">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div>
-            <label className="block text-sm font-medium text-[#1A1A2E] mb-1">Nombre del viaje *</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Nombre del viaje *</label>
             <input
               type="text"
               required
               value={form.name}
               onChange={(e) => set('name', e.target.value)}
               placeholder="Ej: Europa 2026"
-              className="w-full px-4 py-3 rounded-xl border border-[#1A1A2E]/20 text-[#1A1A2E] placeholder:text-[#1A1A2E]/35 focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/50 focus:border-[#FF6B35] transition-colors"
+              className="w-full px-4 py-3 rounded-xl border border-foreground/20 text-foreground placeholder:text-foreground/35 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[#1A1A2E] mb-1">Descripción</label>
+            <label className="block text-sm font-medium text-foreground mb-1">Descripción</label>
             <textarea
               value={form.description}
               onChange={(e) => set('description', e.target.value)}
               placeholder="Países, ciudades, motivo del viaje..."
               rows={2}
-              className="w-full px-4 py-3 rounded-xl border border-[#1A1A2E]/20 text-[#1A1A2E] placeholder:text-[#1A1A2E]/35 focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/50 focus:border-[#FF6B35] transition-colors resize-none"
+              className="w-full px-4 py-3 rounded-xl border border-foreground/20 text-foreground placeholder:text-foreground/35 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors resize-none"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-[#1A1A2E] mb-1">Fecha inicio *</label>
+              <label className="block text-sm font-medium text-foreground mb-1">Fecha inicio *</label>
               <input
                 type="date"
                 required
                 value={form.startDate}
                 onChange={(e) => set('startDate', e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-[#1A1A2E]/20 text-[#1A1A2E] focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/50 focus:border-[#FF6B35] transition-colors"
+                className="w-full px-4 py-3 rounded-xl border border-foreground/20 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[#1A1A2E] mb-1">Fecha fin *</label>
+              <label className="block text-sm font-medium text-foreground mb-1">Fecha fin *</label>
               <input
                 type="date"
                 required
                 value={form.endDate}
                 onChange={(e) => set('endDate', e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-[#1A1A2E]/20 text-[#1A1A2E] focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/50 focus:border-[#FF6B35] transition-colors"
+                className="w-full px-4 py-3 rounded-xl border border-foreground/20 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
               />
             </div>
           </div>
@@ -182,16 +172,16 @@ function NewTripModal({ onClose, onCreated }: { onClose: () => void; onCreated: 
                 onChange={(e) => set('isInternational', e.target.checked)}
                 className="sr-only peer"
               />
-              <div className="w-11 h-6 rounded-full bg-[#1A1A2E]/20 peer-checked:bg-[#1B4FD8] transition-colors" />
+              <div className="w-11 h-6 rounded-full bg-foreground/20 peer-checked:bg-secondary transition-colors" />
               <div className="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5" />
             </div>
-            <span className="text-sm font-medium text-[#1A1A2E]">¿Es un viaje internacional? 🌍</span>
+            <span className="text-sm font-medium text-foreground">¿Es un viaje internacional? 🌍</span>
           </label>
 
           <button
             type="submit"
             disabled={loading}
-            className="mt-1 w-full py-3 rounded-xl bg-[#FF6B35] text-white font-bold text-base hover:bg-[#e55a27] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+            className="mt-1 w-full py-3 rounded-xl bg-primary text-white font-bold text-base hover:bg-primary-dark disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
           >
             {loading ? 'Creando...' : 'Crear viaje'}
           </button>
@@ -234,39 +224,37 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8]">
+    <div className="min-h-screen bg-background">
 
-      {/* Header */}
-      <header className="bg-white border-b border-[#1A1A2E]/8 px-6 py-4 sticky top-0 z-10">
+      <header className="bg-white border-b border-foreground/8 px-6 py-4 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <span className="font-[Nunito,sans-serif] font-bold text-2xl text-[#FF6B35]">Bitácora ✈️</span>
+          <span className="font-heading font-bold text-2xl text-primary">Bitácora ✈️</span>
           <button
             onClick={handleLogout}
-            className="text-sm text-[#1A1A2E]/50 hover:text-[#EF4444] transition-colors font-medium"
+            className="text-sm text-foreground/50 hover:text-error transition-colors font-medium"
           >
             Cerrar sesión
           </button>
         </div>
       </header>
 
-      {/* Content */}
       <main className="max-w-5xl mx-auto px-6 py-8">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="font-[Nunito,sans-serif] font-extrabold text-3xl text-[#1A1A2E]">Mis viajes</h1>
+          <h1 className="font-heading font-extrabold text-3xl text-foreground">Mis viajes</h1>
           <button
             onClick={() => setShowModal(true)}
-            className="hidden sm:flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#FF6B35] text-white font-semibold hover:bg-[#e55a27] transition-colors"
+            className="hidden sm:flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-white font-semibold hover:bg-primary-dark transition-colors"
           >
             <span className="text-lg">+</span> Nuevo viaje
           </button>
         </div>
 
         {loading && (
-          <div className="text-center py-20 text-[#1A1A2E]/40">Cargando viajes...</div>
+          <div className="text-center py-20 text-foreground/40">Cargando viajes...</div>
         )}
 
         {error && (
-          <div className="p-4 rounded-xl bg-[#EF4444]/10 border border-[#EF4444]/30 text-[#EF4444] text-sm">
+          <div className="p-4 rounded-xl bg-error/10 border border-error/30 text-error text-sm mb-4">
             {error}
           </div>
         )}
@@ -274,13 +262,13 @@ export default function DashboardPage() {
         {!loading && !error && trips.length === 0 && (
           <div className="text-center py-20">
             <div className="text-6xl mb-4">🗺️</div>
-            <h2 className="font-[Nunito,sans-serif] font-bold text-xl text-[#1A1A2E] mb-2">
+            <h2 className="font-heading font-bold text-xl text-foreground mb-2">
               Todavía no tenés viajes
             </h2>
-            <p className="text-[#1A1A2E]/50 mb-6">Creá tu primer viaje y empezá a organizarlo.</p>
+            <p className="text-foreground/50 mb-6">Creá tu primer viaje y empezá a organizarlo.</p>
             <button
               onClick={() => setShowModal(true)}
-              className="px-6 py-3 rounded-xl bg-[#FF6B35] text-white font-bold hover:bg-[#e55a27] transition-colors"
+              className="px-6 py-3 rounded-xl bg-primary text-white font-bold hover:bg-primary-dark transition-colors"
             >
               Crear mi primer viaje
             </button>
@@ -296,10 +284,9 @@ export default function DashboardPage() {
         )}
       </main>
 
-      {/* FAB mobile */}
       <button
         onClick={() => setShowModal(true)}
-        className="sm:hidden fixed bottom-6 right-6 w-14 h-14 rounded-full bg-[#FF6B35] text-white text-3xl shadow-lg hover:bg-[#e55a27] transition-colors flex items-center justify-center z-10"
+        className="sm:hidden fixed bottom-6 right-6 w-14 h-14 rounded-full bg-primary text-white text-3xl shadow-lg hover:bg-primary-dark transition-colors flex items-center justify-center z-10"
         aria-label="Nuevo viaje"
       >
         +

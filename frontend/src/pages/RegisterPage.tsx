@@ -38,34 +38,32 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAF8] flex flex-col items-center justify-center px-6">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
       <div className="w-full max-w-sm">
 
-        {/* Logo */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-block">
-            <span className="font-[Nunito,sans-serif] font-bold text-3xl text-[#FF6B35]">
+            <span className="font-heading font-bold text-3xl text-primary">
               Bitácora ✈️
             </span>
           </Link>
-          <p className="mt-2 text-[#1A1A2E]/60 text-sm">Creá tu cuenta gratis</p>
+          <p className="mt-2 text-foreground/60 text-sm">Creá tu cuenta gratis</p>
         </div>
 
-        {/* Card */}
-        <div className="bg-white rounded-2xl shadow-sm border border-[#1A1A2E]/8 p-8">
-          <h1 className="font-[Nunito,sans-serif] font-bold text-2xl text-[#1A1A2E] mb-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-foreground/8 p-8">
+          <h1 className="font-heading font-bold text-2xl text-foreground mb-6">
             Crear cuenta
           </h1>
 
           {error && (
-            <div className="mb-4 p-3 rounded-lg bg-[#EF4444]/10 border border-[#EF4444]/30 text-[#EF4444] text-sm">
+            <div className="mb-4 p-3 rounded-lg bg-error/10 border border-error/30 text-error text-sm">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
-              <label className="block text-sm font-medium text-[#1A1A2E] mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 Email
               </label>
               <input
@@ -74,12 +72,12 @@ export default function RegisterPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="tu@email.com"
-                className="w-full px-4 py-3 rounded-xl border border-[#1A1A2E]/20 text-[#1A1A2E] placeholder:text-[#1A1A2E]/35 focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/50 focus:border-[#FF6B35] transition-colors"
+                className="w-full px-4 py-3 rounded-xl border border-foreground/20 text-foreground placeholder:text-foreground/35 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#1A1A2E] mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 Contraseña
               </label>
               <input
@@ -88,12 +86,12 @@ export default function RegisterPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-4 py-3 rounded-xl border border-[#1A1A2E]/20 text-[#1A1A2E] placeholder:text-[#1A1A2E]/35 focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/50 focus:border-[#FF6B35] transition-colors"
+                className="w-full px-4 py-3 rounded-xl border border-foreground/20 text-foreground placeholder:text-foreground/35 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-[#1A1A2E] mb-1">
+              <label className="block text-sm font-medium text-foreground mb-1">
                 Repetir contraseña
               </label>
               <input
@@ -102,23 +100,23 @@ export default function RegisterPage() {
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
                 placeholder="••••••••"
-                className="w-full px-4 py-3 rounded-xl border border-[#1A1A2E]/20 text-[#1A1A2E] placeholder:text-[#1A1A2E]/35 focus:outline-none focus:ring-2 focus:ring-[#FF6B35]/50 focus:border-[#FF6B35] transition-colors"
+                className="w-full px-4 py-3 rounded-xl border border-foreground/20 text-foreground placeholder:text-foreground/35 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
               />
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="mt-2 w-full py-3 rounded-xl bg-[#FF6B35] text-white font-bold text-base hover:bg-[#e55a27] disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+              className="mt-2 w-full py-3 rounded-xl bg-primary text-white font-bold text-base hover:bg-primary-dark disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
             >
               {loading ? 'Creando cuenta...' : 'Crear cuenta'}
             </button>
           </form>
         </div>
 
-        <p className="text-center mt-6 text-sm text-[#1A1A2E]/60">
+        <p className="text-center mt-6 text-sm text-foreground/60">
           ¿Ya tenés cuenta?{' '}
-          <Link to="/login" className="text-[#FF6B35] font-semibold hover:underline">
+          <Link to="/login" className="text-primary font-semibold hover:underline">
             Iniciar sesión
           </Link>
         </p>

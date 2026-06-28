@@ -35,23 +35,23 @@ const features = [
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#FAFAF8] font-[Inter,sans-serif]">
+    <div className="min-h-screen bg-background font-body">
 
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 py-4 max-w-5xl mx-auto">
-        <span className="font-[Nunito,sans-serif] font-bold text-2xl text-[#FF6B35]">
+        <span className="font-heading font-bold text-2xl text-primary">
           Bitácora ✈️
         </span>
         <div className="flex gap-3">
           <Link
             to="/login"
-            className="px-4 py-2 rounded-lg text-[#1A1A2E] font-medium hover:bg-[#FF6B35]/10 transition-colors"
+            className="px-4 py-2 rounded-lg text-foreground font-medium hover:bg-primary/10 transition-colors"
           >
             Iniciar sesión
           </Link>
           <Link
             to="/register"
-            className="px-4 py-2 rounded-lg bg-[#FF6B35] text-white font-semibold hover:bg-[#e55a27] transition-colors"
+            className="px-4 py-2 rounded-lg bg-primary text-white font-semibold hover:bg-primary-dark transition-colors"
           >
             Registrarse
           </Link>
@@ -61,11 +61,11 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="text-center px-6 pt-16 pb-20 max-w-3xl mx-auto">
         <div className="text-6xl mb-6">🌍</div>
-        <h1 className="font-[Nunito,sans-serif] font-extrabold text-4xl md:text-5xl text-[#1A1A2E] leading-tight mb-4">
+        <h1 className="font-heading font-extrabold text-4xl md:text-5xl text-foreground leading-tight mb-4">
           Organizá tu próxima{' '}
-          <span className="text-[#FF6B35]">aventura</span>
+          <span className="text-primary">aventura</span>
         </h1>
-        <p className="text-lg text-[#1A1A2E]/70 mb-10 max-w-xl mx-auto">
+        <p className="text-lg text-foreground/70 mb-10 max-w-xl mx-auto">
           Bitácora es tu organizador personal de viajes. Gastos, itinerario,
           checklist, alojamientos y más — todo en un solo lugar, incluso sin
           internet.
@@ -73,13 +73,13 @@ export default function LandingPage() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             to="/register"
-            className="px-8 py-4 rounded-xl bg-[#FF6B35] text-white font-bold text-lg hover:bg-[#e55a27] transition-colors shadow-lg"
+            className="px-8 py-4 rounded-xl bg-primary text-white font-bold text-lg hover:bg-primary-dark transition-colors shadow-lg"
           >
             Empezar gratis
           </Link>
           <Link
             to="/login"
-            className="px-8 py-4 rounded-xl border-2 border-[#1B4FD8] text-[#1B4FD8] font-bold text-lg hover:bg-[#1B4FD8]/10 transition-colors"
+            className="px-8 py-4 rounded-xl border-2 border-secondary text-secondary font-bold text-lg hover:bg-secondary/10 transition-colors"
           >
             Ya tengo cuenta
           </Link>
@@ -88,20 +88,20 @@ export default function LandingPage() {
 
       {/* Features */}
       <section className="px-6 pb-20 max-w-5xl mx-auto">
-        <h2 className="font-[Nunito,sans-serif] font-bold text-2xl text-center text-[#1A1A2E] mb-10">
+        <h2 className="font-heading font-bold text-2xl text-center text-foreground mb-10">
           Todo lo que necesitás para viajar tranquilo
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {features.map((f) => (
             <div
               key={f.title}
-              className="bg-white rounded-2xl p-6 shadow-sm border border-[#1A1A2E]/8 hover:shadow-md transition-shadow"
+              className="bg-white rounded-2xl p-6 shadow-sm border border-foreground/8 hover:shadow-md transition-shadow"
             >
               <div className="text-3xl mb-3">{f.emoji}</div>
-              <h3 className="font-[Nunito,sans-serif] font-bold text-lg text-[#1A1A2E] mb-2">
+              <h3 className="font-heading font-bold text-lg text-foreground mb-2">
                 {f.title}
               </h3>
-              <p className="text-sm text-[#1A1A2E]/65 leading-relaxed">
+              <p className="text-sm text-foreground/65 leading-relaxed">
                 {f.description}
               </p>
             </div>
@@ -110,9 +110,9 @@ export default function LandingPage() {
       </section>
 
       {/* CTA banner */}
-      <section className="mx-6 mb-20 max-w-5xl lg:mx-auto rounded-3xl bg-[#1B4FD8] px-8 py-14 text-center text-white">
+      <section className="mx-6 mb-20 max-w-5xl lg:mx-auto rounded-3xl bg-secondary px-8 py-14 text-center text-white">
         <div className="text-4xl mb-4">🚀</div>
-        <h2 className="font-[Nunito,sans-serif] font-extrabold text-3xl mb-3">
+        <h2 className="font-heading font-extrabold text-3xl mb-3">
           ¿Listo para tu próximo viaje?
         </h2>
         <p className="text-white/80 mb-8">
@@ -120,14 +120,14 @@ export default function LandingPage() {
         </p>
         <Link
           to="/register"
-          className="inline-block px-8 py-4 rounded-xl bg-[#FFD23F] text-[#1A1A2E] font-bold text-lg hover:bg-[#f0c430] transition-colors"
+          className="inline-block px-8 py-4 rounded-xl bg-accent text-foreground font-bold text-lg hover:bg-accent-dark transition-colors"
         >
           Crear cuenta gratis
         </Link>
       </section>
 
       {/* Footer */}
-      <footer className="text-center py-8 text-sm text-[#1A1A2E]/40">
+      <footer className="text-center py-8 text-sm text-foreground/40">
         Bitácora © 2026 — Hecho con ❤️ por Antonio Melino
       </footer>
     </div>

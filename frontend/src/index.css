@@ -2,11 +2,14 @@
 
 @theme {
   --color-primary: #FF6B35;
+  --color-primary-dark: #e55a27;
   --color-secondary: #1B4FD8;
   --color-accent: #FFD23F;
+  --color-accent-dark: #f0c430;
   --color-background: #FAFAF8;
   --color-foreground: #1A1A2E;
   --color-success: #22C55E;
+  --color-success-dark: #16a34a;
   --color-error: #EF4444;
 
   --font-heading: "Nunito", system-ui, sans-serif;
