@@ -60,6 +60,7 @@ builder.Services.AddScoped<IAccommodationService, AccommodationService>();
 builder.Services.AddScoped<ICityService, CityService>();
 builder.Services.AddScoped<IPlaceToVisitService, PlaceToVisitService>();
 builder.Services.AddScoped<ISimOptionService, SimOptionService>();
+builder.Services.AddScoped<IExcelExportService, ExcelExportService>();
 
 var app = builder.Build();
 
