@@ -20,4 +20,5 @@ public class BitacoraDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Accommodation> Accommodations => Set<Accommodation>();
     public DbSet<City> Cities => Set<City>();
     public DbSet<PlaceToVisit> PlacesToVisit => Set<PlaceToVisit>();
+    public DbSet<SimOption> SimOptions => Set<SimOption>();
 }

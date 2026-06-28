@@ -59,6 +59,7 @@ builder.Services.AddScoped<IChecklistItemService, ChecklistItemService>();
 builder.Services.AddScoped<IAccommodationService, AccommodationService>();
 builder.Services.AddScoped<ICityService, CityService>();
 builder.Services.AddScoped<IPlaceToVisitService, PlaceToVisitService>();
+builder.Services.AddScoped<ISimOptionService, SimOptionService>();
 
 var app = builder.Build();
 
