@@ -8,6 +8,12 @@ function formatDate(iso: string) {
 
 function TripCard({ trip, onDelete }: { trip: Trip; onDelete: (id: number) => void }) {
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
+
+  function handleDelete() {
+    setDeleteError('')
+    onDelete(trip.id)
+  }
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-[#1A1A2E]/8 p-5 flex flex-col gap-3 hover:shadow-md transition-shadow">
@@ -34,17 +40,22 @@ function TripCard({ trip, onDelete }: { trip: Trip; onDelete: (id: number) => vo
         <span>{formatDate(trip.startDate)} — {formatDate(trip.endDate)}</span>
       </div>
 
+      {deleteError && (
+        <p className="text-xs text-[#EF4444]">{deleteError}</p>
+      )}
+
       <div className="flex gap-2 pt-1">
         <button
-          onClick={() => alert('Detalle del viaje — próximamente')}
-          className="flex-1 py-2 rounded-xl bg-[#FF6B35] text-white text-sm font-semibold hover:bg-[#e55a27] transition-colors"
+          disabled
+          title="Próximamente"
+          className="flex-1 py-2 rounded-xl bg-[#FF6B35]/40 text-white text-sm font-semibold cursor-not-allowed"
         >
           Ver viaje
         </button>
         {confirmDelete ? (
           <div className="flex gap-1">
             <button
-              onClick={() => onDelete(trip.id)}
+              onClick={handleDelete}
               className="px-3 py-2 rounded-xl bg-[#EF4444] text-white text-sm font-semibold hover:bg-red-600 transition-colors"
             >
               Confirmar
@@ -219,7 +230,7 @@ export default function DashboardPage() {
   function handleDelete(id: number) {
     deleteTrip(id)
       .then(() => setTrips((prev) => prev.filter((t) => t.id !== id)))
-      .catch(() => alert('No se pudo eliminar el viaje'))
+      .catch(() => setError('No se pudo eliminar el viaje. Intentá de nuevo.'))
   }
 
   return (
