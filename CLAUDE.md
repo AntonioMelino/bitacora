@@ -289,16 +289,24 @@ public class ApiResponse<T>
 - Floating action button (+) for creating new items on mobile
 
 **Color usage in Tailwind:**
-Define the palette in `tailwind.config.js` under `theme.extend.colors`:
-```js
-colors: {
-  primary: '#FF6B35',
-  secondary: '#1B4FD8',
-  accent: '#FFD23F',
-  background: '#FAFAF8',
-  foreground: '#1A1A2E',
+Colors are defined in `src/index.css` using Tailwind v4 `@theme` block:
+```css
+@theme {
+  --color-primary: #FF6B35;        /* use: text-primary, bg-primary */
+  --color-primary-dark: #e55a27;   /* use: hover:bg-primary-dark */
+  --color-secondary: #1B4FD8;
+  --color-accent: #FFD23F;
+  --color-accent-dark: #f0c430;
+  --color-background: #FAFAF8;
+  --color-foreground: #1A1A2E;
+  --color-success: #22C55E;
+  --color-success-dark: #16a34a;
+  --color-error: #EF4444;
+  --font-heading: "Nunito", system-ui, sans-serif;  /* use: font-heading */
+  --font-body: "Inter", system-ui, sans-serif;      /* use: font-body */
 }
 ```
+Never use arbitrary hex values like `[#FF6B35]` — always use the named token.
 
 **Component structure:**
 - One component per file
@@ -469,3 +477,4 @@ Both CLAUDE.md and CLAUDE.es.md must be updated together.
 | 2026-06-27 | feature/cities | Cities and PlacesToVisit CRUD: City domain entity (Name, Order), PlaceToVisit domain entity (Name, PlaceId for Google Places, MapsLink, Notes, Visited), DTOs, ICityService/IPlaceToVisitService, CityService (cities ordered by Order+Name, response includes nested Places list), PlaceToVisitService with ToggleVisitedAsync, CitiesController under api/trips/{tripId}/cities, PlacesToVisitController under api/trips/{tripId}/cities/{cityId}/places with full CRUD + PATCH /visited toggle (JWT required), AddCitiesAndPlacesToVisit migration applied to Supabase |
 | 2026-06-28 | feature/sim-options | SimOptions CRUD: SimOption domain entity (Company, Type, Coverage, Notes, Decided), DTOs, ISimOptionService, SimOptionService with ToggleDecidedAsync and trip ownership validation, SimOptionsController under api/trips/{tripId}/sim-options with full CRUD + PATCH /decided toggle (JWT required), AddSimOptions migration applied to Supabase |
 | 2026-06-28 | feature/excel-export | Excel export: ClosedXML 0.105.0 installed, IExcelExportService interface, ExcelExportService with one method per entity (expenses, itinerary, checklist, accommodations, cities+places, sim-options) plus ExportTripAsync global that combines all sheets in one workbook. ExportController under api/trips/{tripId}/export/* with GET endpoints per entity + GET / for full trip export. Headers styled with primary color #FF6B35. SIM sheet only included for international trips. |
+| 2026-06-28 | feature/frontend-setup | Phase 2 frontend foundation: Tailwind CSS v4 with @theme tokens (primary, secondary, accent, background, foreground, success, error + dark variants), React Router v7 with routes for /, /login, /register, /dashboard. Google Fonts (Nunito + Inter). LandingPage with hero, 6-feature grid, CTA banner, footer. LoginPage and RegisterPage with form validation and JWT storage. DashboardPage with trip list grid, TripCard (dates, badge, delete with confirm), NewTripModal (name, description, dates, international toggle), empty state, FAB on mobile. authService and tripService as axios wrappers. CORS enabled on backend for localhost:5173. |
