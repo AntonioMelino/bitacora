@@ -2,6 +2,10 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { getTripById, type Trip } from '../services/tripService'
 import ChecklistTab from '../tabs/ChecklistTab'
+import ExpensesTab from '../tabs/ExpensesTab'
+import AccommodationsTab from '../tabs/AccommodationsTab'
+import CitiesTab from '../tabs/CitiesTab'
+import SimTab from '../tabs/SimTab'
 
 type TabId = 'checklist' | 'expenses' | 'itinerary' | 'accommodations' | 'cities' | 'sim'
 
@@ -110,11 +114,11 @@ export default function TripDetailPage() {
       {/* Tab content */}
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-6">
         {activeTab === 'checklist'      && <ChecklistTab tripId={trip.id} />}
-        {activeTab === 'expenses'       && <ComingSoon label="Gastos" />}
+        {activeTab === 'expenses'       && <ExpensesTab tripId={trip.id} />}
         {activeTab === 'itinerary'      && <ComingSoon label="Itinerario" />}
-        {activeTab === 'accommodations' && <ComingSoon label="Alojamientos" />}
-        {activeTab === 'cities'         && <ComingSoon label="Ciudades y lugares" />}
-        {activeTab === 'sim'            && <ComingSoon label="SIM / eSIM" />}
+        {activeTab === 'accommodations' && <AccommodationsTab tripId={trip.id} />}
+        {activeTab === 'cities'         && <CitiesTab tripId={trip.id} />}
+        {activeTab === 'sim'            && <SimTab tripId={trip.id} />}
       </main>
     </div>
   )
