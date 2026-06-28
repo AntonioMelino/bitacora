@@ -37,6 +37,10 @@ export function getTrips(): Promise<Trip[]> {
   return unwrap(api.get('/api/trips', { headers: authHeaders() }))
 }
 
+export function getTripById(id: number): Promise<Trip> {
+  return unwrap(api.get(`/api/trips/${id}`, { headers: authHeaders() }))
+}
+
 export function createTrip(body: CreateTripRequest): Promise<Trip> {
   return unwrap(api.post('/api/trips', body, { headers: authHeaders() }))
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect, type FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { getTrips, createTrip, deleteTrip, type Trip, type CreateTripRequest } from '../services/tripService'
 
 function formatDate(iso: string) {
@@ -35,13 +35,12 @@ function TripCard({ trip, onDelete }: { trip: Trip; onDelete: (id: number) => vo
       </div>
 
       <div className="flex gap-2 pt-1">
-        <button
-          disabled
-          title="Próximamente"
-          className="flex-1 py-2 rounded-xl bg-primary/40 text-white text-sm font-semibold cursor-not-allowed"
+        <Link
+          to={`/trips/${trip.id}`}
+          className="flex-1 py-2 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary-dark transition-colors text-center"
         >
           Ver viaje
-        </button>
+        </Link>
         {confirmDelete ? (
           <div className="flex gap-1">
             <button
