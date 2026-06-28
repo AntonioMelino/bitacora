@@ -471,30 +471,63 @@ es siempre `ConnectionStrings:DefaultConnection`.
 
 ## Roadmap de desarrollo
 
-### Fase 1 — Backend completo (prioridad actual)
+### Fase 1 — Backend ✅ COMPLETO
 Todas las entidades con endpoints CRUD completos, auth con ASP.NET Core
-Identity + JWT, y exportación a Excel con ClosedXML.
+Identity + JWT, y exportación a Excel con ClosedXML. Todo terminado.
 
-Orden sugerido:
-1. Auth (registro, login, JWT, refresh token)
-2. Viajes (CRUD, campo IsInternational)
-3. Tablas de consulta (ExpenseCategory, PaymentMethod, Currency)
-4. Gastos
-5. Ítems del itinerario
-6. Ítems del checklist
-7. Alojamientos
-8. Ciudades + Lugares a visitar
-9. Opciones de SIM/eSIM
-10. Exportar a Excel (un endpoint por entidad + uno global por viaje)
+### Fase 2 — Frontend React (EN PROGRESO)
 
-### Fase 2 — Frontend React
-Consumo de la API, UI por módulo, Tailwind CSS con la paleta de colores
-de viajes, PWA con vite-plugin-pwa, diseño responsivo mobile-first,
-página de inicio, pantallas de auth, soporte offline con service workers.
+Estado: base, páginas de auth, dashboard y tabs del detalle de viaje listos.
+Pasos restantes en orden recomendado:
+
+**Paso 1 · `feature/itinerary-tab`** *(pequeño)*
+La única tab que todavía muestra "próximamente" en TripDetailPage.
+- `src/services/itineraryService.ts` — GET/POST/DELETE sobre `/api/trips/{id}/itinerary`
+- `src/tabs/ItineraryTab.tsx` — campos: fecha, número de día, ciudad, alojamiento,
+  actividades, transporte, vuelo, observaciones, link
+- Reemplazar el `<ComingSoon>` en TripDetailPage.tsx
+
+**Paso 2 · `feature/lookup-management`** *(mediano — ALTA PRIORIDAD)*
+Sin esto el usuario no puede crear gastos (no existen categorías ni monedas).
+- Página `/settings` accesible desde el header del dashboard
+- Tres secciones: Categorías de gasto, Métodos de pago, Monedas
+- CRUD completo de cada una (agregar nombre, eliminar)
+- Campos de Moneda: code (USD), name (Dólar), symbol ($)
+- Enlace desde ExpensesTab cuando las listas están vacías
+
+**Paso 3 · `feature/excel-export-ui`** *(pequeño)*
+Los endpoints del backend ya existen — solo falta un botón en la UI.
+- Botón "Exportar Excel" en el header de TripDetailPage
+- Llama a `GET /api/trips/{id}/export`, descarga el `.xlsx` via blob response
+- Estado de carga mientras se genera el archivo
+
+**Paso 4 · `feature/trip-editing`** *(pequeño)*
+Actualmente no hay forma de editar un viaje después de crearlo.
+- Botón de edición (ícono lápiz) en el header de TripDetailPage
+- Modal reutilizando la misma estructura de NewTripModal
+- Llama a `PUT /api/trips/{id}`
+
+**Paso 5 · `feature/pwa`** *(mediano)*
+El soporte offline es un requisito core del proyecto (viajando sin señal).
+- Instalar `vite-plugin-pwa`, configurar `manifest.json` (nombre, íconos, colores)
+- Estrategia de caché con Workbox: StaleWhileRevalidate para llamadas a la API
+- Pre-cache de assets estáticos (JS, CSS, fonts)
+- Banner de "instalá la app" en mobile
+- Indicador visual cuando el usuario está offline
 
 ### Fase 3 — Integraciones
-Asistente de IA con API de Anthropic (server-side),
-API de Google Maps/Places, sincronización offline completa.
+
+**Paso 6 · `feature/ai-assistant`** *(grande)*
+- Widget flotante de chat visible en todas las páginas privadas
+- Panel lateral o modal con historial de mensajes
+- Endpoint backend `POST /api/ai/chat` que llama a la API de Anthropic con contexto del viaje actual
+- El asistente conoce los datos del viaje (gastos, destinos, fechas) para dar sugerencias
+- La API key nunca se expone al frontend
+
+**Paso 7 · `feature/google-maps`** *(mediano)*
+- Autocomplete con Google Places API al agregar un lugar en CitiesTab
+- Completa automáticamente el nombre y el link de Maps al seleccionar un lugar
+- El PlaceId de Google se guarda en la base de datos (el campo ya existe)
 
 ---
 

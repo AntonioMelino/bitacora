@@ -417,30 +417,63 @@ is always `ConnectionStrings:DefaultConnection`.
 
 ## Development roadmap
 
-### Phase 1 — Complete backend (current priority)
-All entities with full CRUD endpoints, auth with ASP.NET Core Identity
-+ JWT, and Excel export with ClosedXML.
+### Phase 1 — Backend ✅ COMPLETE
+All entities with full CRUD endpoints, auth with ASP.NET Core Identity + JWT,
+and Excel export with ClosedXML. Everything is done.
 
-Suggested order:
-1. Auth (register, login, JWT, refresh token)
-2. Trips (CRUD, IsInternational flag)
-3. Lookup tables (ExpenseCategory, PaymentMethod, Currency)
-4. Expenses
-5. ItineraryItems
-6. ChecklistItems
-7. Accommodations
-8. Cities + PlacesToVisit
-9. SimOptions
-10. Excel export (one endpoint per entity + one global per trip)
+### Phase 2 — React frontend (IN PROGRESS)
 
-### Phase 2 — React frontend
-API consumption, module UI, Tailwind CSS with travel color palette,
-PWA with vite-plugin-pwa, mobile-first responsive design,
-landing page, auth screens, offline support with service workers.
+Status: foundation, auth pages, dashboard, and trip detail tabs done.
+Remaining steps in recommended order:
+
+**Step 1 · `feature/itinerary-tab`** *(small)*
+The only tab still showing "coming soon" in TripDetailPage.
+- `src/services/itineraryService.ts` — GET/POST/DELETE on `/api/trips/{id}/itinerary`
+- `src/tabs/ItineraryTab.tsx` — fields: date, dayNumber, city, accommodation,
+  activities, transport, flight, observations, link
+- Replace the `<ComingSoon>` in TripDetailPage.tsx
+
+**Step 2 · `feature/lookup-management`** *(medium — HIGH PRIORITY)*
+Without this the user cannot create expenses (no categories or currencies exist).
+- Page `/settings` accessible from the dashboard header
+- Three sections: Expense categories, Payment methods, Currencies
+- Full CRUD for each (add name, delete)
+- Currency fields: code (USD), name (Dollar), symbol ($)
+- Link from ExpensesTab when lists are empty
+
+**Step 3 · `feature/excel-export-ui`** *(small)*
+Backend endpoints already exist — just needs a button in the UI.
+- "Export Excel" button in the TripDetailPage header
+- Calls `GET /api/trips/{id}/export`, downloads `.xlsx` via blob response
+- Loading state while the file is generated
+
+**Step 4 · `feature/trip-editing`** *(small)*
+Currently there is no way to edit a trip after creating it.
+- Edit button (pencil icon) in the TripDetailPage header
+- Modal reusing the same structure as NewTripModal
+- Calls `PUT /api/trips/{id}`
+
+**Step 5 · `feature/pwa`** *(medium)*
+Offline support is a core requirement (traveling without signal).
+- Install `vite-plugin-pwa`, configure `manifest.json` (name, icons, colors)
+- Workbox caching strategy: StaleWhileRevalidate for API calls
+- Pre-cache of static assets (JS, CSS, fonts)
+- "Install app" banner on mobile
+- Visual indicator when the user is offline
 
 ### Phase 3 — Integrations
-AI assistant with Anthropic API (server-side),
-Google Maps/Places API, full offline sync.
+
+**Step 6 · `feature/ai-assistant`** *(large)*
+- Floating chat widget visible on all private pages
+- Side panel or modal with message history
+- Backend endpoint `POST /api/ai/chat` calling Anthropic API with current trip context
+- Assistant knows trip data (expenses, destinations, dates) to give suggestions
+- API key never exposed to the frontend
+
+**Step 7 · `feature/google-maps`** *(medium)*
+- Autocomplete with Google Places API when adding a place in CitiesTab
+- Auto-fills name and Maps link on place selection
+- Google PlaceId saved to the database (field already exists)
 
 ---
 
