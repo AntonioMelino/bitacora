@@ -128,7 +128,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="text-center py-8 text-sm text-[#1A1A2E]/40">
-        Bitácora © 2026 — Hecho con ❤️ para viajeros
+        Bitácora © 2026 — Hecho con ❤️ por Antonio Melino
       </footer>
     </div>
   )
