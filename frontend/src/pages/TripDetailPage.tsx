@@ -6,6 +6,7 @@ import ExpensesTab from '../tabs/ExpensesTab'
 import AccommodationsTab from '../tabs/AccommodationsTab'
 import CitiesTab from '../tabs/CitiesTab'
 import SimTab from '../tabs/SimTab'
+import ItineraryTab from '../tabs/ItineraryTab'
 
 type TabId = 'checklist' | 'expenses' | 'itinerary' | 'accommodations' | 'cities' | 'sim'
 
@@ -115,7 +116,7 @@ export default function TripDetailPage() {
       <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-6">
         {activeTab === 'checklist'      && <ChecklistTab tripId={trip.id} />}
         {activeTab === 'expenses'       && <ExpensesTab tripId={trip.id} />}
-        {activeTab === 'itinerary'      && <ComingSoon label="Itinerario" />}
+        {activeTab === 'itinerary'      && <ItineraryTab tripId={trip.id} />}
         {activeTab === 'accommodations' && <AccommodationsTab tripId={trip.id} />}
         {activeTab === 'cities'         && <CitiesTab tripId={trip.id} />}
         {activeTab === 'sim'            && <SimTab tripId={trip.id} />}
