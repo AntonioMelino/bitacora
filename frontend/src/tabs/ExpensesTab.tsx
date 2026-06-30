@@ -1,4 +1,5 @@
 import { useState, useEffect, type FormEvent } from 'react'
+import { Link } from 'react-router-dom'
 import {
   getExpenses, createExpense, deleteExpense, getCategories, getPaymentMethods, getCurrencies,
   type Expense, type CreateExpenseRequest, type LookupItem, type Currency,
@@ -65,6 +66,18 @@ export default function ExpensesTab({ tripId }: { tripId: number }) {
   return (
     <div className="max-w-2xl mx-auto">
       {error && <div className="mb-4 p-3 rounded-lg bg-error/10 border border-error/30 text-error text-sm">{error}</div>}
+
+      {(categories.length === 0 || methods.length === 0 || currencies.length === 0) && (
+        <div className="mb-5 p-4 rounded-xl bg-accent/20 border border-accent/40 text-sm text-foreground">
+          <p className="font-semibold mb-1">⚠️ Configuración incompleta</p>
+          <p className="text-foreground/70 mb-2">
+            Para registrar gastos necesitás al menos una categoría, un método de pago y una moneda.
+          </p>
+          <Link to="/settings" className="font-semibold text-secondary hover:underline">
+            Ir a Configuración →
+          </Link>
+        </div>
+      )}
 
       <div className="flex items-center justify-between mb-5">
         {expenses.length > 0 && (
