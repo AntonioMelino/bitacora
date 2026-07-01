@@ -421,10 +421,10 @@ is always `ConnectionStrings:DefaultConnection`.
 All entities with full CRUD endpoints, auth with ASP.NET Core Identity + JWT,
 and Excel export with ClosedXML. Everything is done.
 
-### Phase 2 — React frontend (IN PROGRESS)
+### Phase 2 — React frontend ✅ COMPLETE
 
-Status: foundation, auth pages, dashboard, and trip detail tabs done.
-Remaining steps in recommended order:
+All 5 steps below are done: itinerary tab, lookup management, Excel
+export UI, trip editing, and PWA offline support.
 
 **Step 1 · `feature/itinerary-tab`** *(small)* ✅ DONE (2026-06-29)
 
@@ -446,8 +446,7 @@ Without this the user cannot create expenses (no categories or currencies exist)
 - Modal reusing the same structure as NewTripModal
 - Calls `PUT /api/trips/{id}`
 
-**Step 5 · `feature/pwa`** *(medium)*
-Offline support is a core requirement (traveling without signal).
+**Step 5 · `feature/pwa`** *(medium)* ✅ DONE (2026-06-30)
 - Install `vite-plugin-pwa`, configure `manifest.json` (name, icons, colors)
 - Workbox caching strategy: StaleWhileRevalidate for API calls
 - Pre-cache of static assets (JS, CSS, fonts)
@@ -510,3 +509,4 @@ Both CLAUDE.md and CLAUDE.es.md must be updated together.
 | 2026-06-30 | feature/excel-export-ui | Excel export UI: exportService.ts calls GET /api/trips/{id}/export and downloads the response as a blob. TripDetailPage header has an "Export Excel" button with a loading state while the file is generated. Removed the unused ComingSoon component left over from earlier tabs (was breaking the TypeScript build). |
 | 2026-06-30 | feature/trip-editing | Trip editing: updateTrip() added to tripService.ts calling PUT /api/trips/{id}. TripDetailPage header has a pencil button that opens EditTripModal, prefilled with the trip's current data and reusing the same form structure as DashboardPage's NewTripModal. |
 | 2026-06-30 | feature/trip-menu-navigation | Trip detail navigation redesign: replaced the horizontal tab bar with a menu screen of square cards (one per section: Checklist, Gastos, Itinerario, Alojamientos, Ciudades, SIM/eSIM). Selecting a card shows that section's content with a "Volver al menu" button in place of the tab bar. |
+| 2026-06-30 | feature/pwa | PWA offline support: vite-plugin-pwa configured in vite.config.ts with autoUpdate registration, a manifest (name, colors, icons — currently reusing favicon.svg), and Workbox runtime caching (StaleWhileRevalidate for /api/*, CacheFirst for Google Fonts). Added OfflineBanner (shown when the browser goes offline) and InstallPrompt (mobile install banner via beforeinstallprompt), both mounted globally in App.tsx. Phase 2 (React frontend) is now complete. |

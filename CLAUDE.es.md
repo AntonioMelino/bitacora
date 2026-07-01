@@ -475,10 +475,10 @@ es siempre `ConnectionStrings:DefaultConnection`.
 Todas las entidades con endpoints CRUD completos, auth con ASP.NET Core
 Identity + JWT, y exportación a Excel con ClosedXML. Todo terminado.
 
-### Fase 2 — Frontend React (EN PROGRESO)
+### Fase 2 — Frontend React ✅ COMPLETA
 
-Estado: base, páginas de auth, dashboard y tabs del detalle de viaje listos.
-Pasos restantes en orden recomendado:
+Los 5 pasos siguientes están listos: tab de itinerario, gestión de
+lookups, UI de exportación a Excel, edición de viajes y soporte PWA offline.
 
 **Paso 1 · `feature/itinerary-tab`** *(pequeño)* ✅ HECHO (2026-06-29)
 
@@ -500,8 +500,7 @@ Sin esto el usuario no puede crear gastos (no existen categorías ni monedas).
 - Modal reutilizando la misma estructura de NewTripModal
 - Llama a `PUT /api/trips/{id}`
 
-**Paso 5 · `feature/pwa`** *(mediano)*
-El soporte offline es un requisito core del proyecto (viajando sin señal).
+**Paso 5 · `feature/pwa`** *(mediano)* ✅ HECHO (2026-06-30)
 - Instalar `vite-plugin-pwa`, configurar `manifest.json` (nombre, íconos, colores)
 - Estrategia de caché con Workbox: StaleWhileRevalidate para llamadas a la API
 - Pre-cache de assets estáticos (JS, CSS, fonts)
@@ -564,3 +563,4 @@ Tanto CLAUDE.md como CLAUDE.es.md deben actualizarse juntos.
 | 2026-06-30 | feature/excel-export-ui | Excel export UI: exportService.ts llama a GET /api/trips/{id}/export y descarga la respuesta como blob. El header de TripDetailPage tiene un botón "Exportar Excel" con estado de carga mientras se genera el archivo. Se eliminó el componente ComingSoon que quedó sin uso de tabs anteriores (rompía el build de TypeScript). |
 | 2026-06-30 | feature/trip-editing | Edición de viajes: se agregó updateTrip() a tripService.ts que llama a PUT /api/trips/{id}. El header de TripDetailPage tiene un botón de lápiz que abre EditTripModal, precargado con los datos actuales del viaje y reutilizando la misma estructura de formulario que NewTripModal del dashboard. |
 | 2026-06-30 | feature/trip-menu-navigation | Rediseño de navegación en el detalle de viaje: se reemplazó la barra de tabs horizontal por una pantalla de menú con cards cuadradas (una por sección: Checklist, Gastos, Itinerario, Alojamientos, Ciudades, SIM/eSIM). Al elegir una card se muestra el contenido de esa sección con un botón "Volver al menú" en lugar de la barra de tabs. |
+| 2026-06-30 | feature/pwa | Soporte PWA offline: vite-plugin-pwa configurado en vite.config.ts con registro autoUpdate, un manifest (nombre, colores, íconos — reutilizando favicon.svg por ahora) y caché con Workbox (StaleWhileRevalidate para /api/*, CacheFirst para Google Fonts). Se agregaron OfflineBanner (aparece cuando el navegador pierde conexión) e InstallPrompt (banner de instalación en mobile via beforeinstallprompt), montados globalmente en App.tsx. La Fase 2 (frontend React) queda completa. |
