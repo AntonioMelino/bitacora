@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { getTripById, type Trip } from '../services/tripService'
+import { exportTrip } from '../services/exportService'
 import ChecklistTab from '../tabs/ChecklistTab'
 import ExpensesTab from '../tabs/ExpensesTab'
 import AccommodationsTab from '../tabs/AccommodationsTab'
@@ -25,16 +26,6 @@ function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
-function ComingSoon({ label }: { label: string }) {
-  return (
-    <div className="flex flex-col items-center justify-center py-24 text-center">
-      <div className="text-5xl mb-4">🚧</div>
-      <p className="font-heading font-bold text-xl text-foreground mb-1">{label}</p>
-      <p className="text-foreground/50 text-sm">Esta sección estará disponible pronto</p>
-    </div>
-  )
-}
-
 export default function TripDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -42,6 +33,7 @@ export default function TripDetailPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState<TabId>('checklist')
+  const [exporting, setExporting] = useState(false)
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -53,6 +45,18 @@ export default function TripDetailPage() {
   }, [id, navigate])
 
   const tabs = trip ? [...BASE_TABS, ...(trip.isInternational ? [SIM_TAB] : [])] : BASE_TABS
+
+  async function handleExport() {
+    if (!trip) return
+    setExporting(true)
+    try {
+      await exportTrip(trip.id)
+    } catch {
+      setError('No se pudo exportar el viaje')
+    } finally {
+      setExporting(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -88,6 +92,13 @@ export default function TripDetailPage() {
                 {trip.isInternational && <span className="ml-2">🌍 Internacional</span>}
               </p>
             </div>
+            <button
+              onClick={handleExport}
+              disabled={exporting}
+              className="shrink-0 flex items-center gap-1.5 bg-secondary text-white text-sm font-semibold px-3 py-2 rounded-lg hover:bg-secondary/90 disabled:opacity-50 transition-colors"
+            >
+              {exporting ? '⏳ Exportando...' : '📊 Exportar Excel'}
+            </button>
           </div>
         </div>
       </header>
