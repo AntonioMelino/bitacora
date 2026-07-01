@@ -1,9 +1,15 @@
 {
   "$schema": "https://schema.railpack.com",
   "provider": "dotnet",
+  "packages": {
+    "dotnet": "10"
+  },
   "steps": {
+    "install": {
+      "commands": ["dotnet restore Bitacora.API/Bitacora.API.csproj"]
+    },
     "build": {
-      "commands": ["dotnet publish Bitacora.API/Bitacora.API.csproj -c Release -o out"]
+      "commands": ["dotnet publish Bitacora.API/Bitacora.API.csproj -c Release -o out --no-restore"]
     }
   },
   "deploy": {
