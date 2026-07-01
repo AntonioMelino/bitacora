@@ -436,8 +436,7 @@ Without this the user cannot create expenses (no categories or currencies exist)
 - Currency fields: code (USD), name (Dollar), symbol ($)
 - Link from ExpensesTab when lists are empty
 
-**Step 3 · `feature/excel-export-ui`** *(small)*
-Backend endpoints already exist — just needs a button in the UI.
+**Step 3 · `feature/excel-export-ui`** *(small)* ✅ DONE (2026-06-30)
 - "Export Excel" button in the TripDetailPage header
 - Calls `GET /api/trips/{id}/export`, downloads `.xlsx` via blob response
 - Loading state while the file is generated
@@ -509,3 +508,4 @@ Both CLAUDE.md and CLAUDE.es.md must be updated together.
 | 2026-06-28 | feature/trip-detail | Trip detail page with sticky header and horizontal scrollable tab bar. Tabs implemented: ChecklistTab (progress bar, toggle, delete), ExpensesTab (category/currency/payment method selects, running total), AccommodationsTab (check-in/check-out dates, city, address), CitiesTab (nested PlaceToVisit list with visited toggle and Maps link, inline add-place form per city), SimTab (SIM/eSIM type, coverage, decided toggle — shown only on international trips). Each tab has its own service module in src/services/ and component in src/tabs/. Also fixed Npgsql 500 error: added AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true) in Program.cs so DateTime fields from HTML date inputs (Kind=Unspecified) are accepted by PostgreSQL. |
 | 2026-06-29 | feature/itinerary-tab | ItineraryTab: itineraryService.ts with getItinerary/createItineraryItem/deleteItineraryItem connected to /api/trips/{id}/itinerary. ItineraryTab.tsx displays days sorted by dayNumber as cards with a colored primary badge (day number), formatted date, city, and optional detail rows for accommodation, activities, transport, flight, observations, and a clickable link. Form to add new days with all fields. Replaced ComingSoon placeholder in TripDetailPage. All trip detail tabs are now complete. |
 | 2026-06-29 | feature/lookup-management | Lookup management: lookupService.ts with full CRUD for expense categories, payment methods, and currencies. SettingsPage.tsx at /settings with three sections (LookupSection reusable component for name-only lookups, CurrencySection with code/symbol/name fields). Link to /settings added to dashboard header. ExpensesTab shows a warning with link to /settings when any lookup list is empty. |
+| 2026-06-30 | feature/excel-export-ui | Excel export UI: exportService.ts calls GET /api/trips/{id}/export and downloads the response as a blob. TripDetailPage header has an "Export Excel" button with a loading state while the file is generated. Removed the unused ComingSoon component left over from earlier tabs (was breaking the TypeScript build). |

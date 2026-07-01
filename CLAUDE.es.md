@@ -490,8 +490,7 @@ Sin esto el usuario no puede crear gastos (no existen categorías ni monedas).
 - Campos de Moneda: code (USD), name (Dólar), symbol ($)
 - Enlace desde ExpensesTab cuando las listas están vacías
 
-**Paso 3 · `feature/excel-export-ui`** *(pequeño)*
-Los endpoints del backend ya existen — solo falta un botón en la UI.
+**Paso 3 · `feature/excel-export-ui`** *(pequeño)* ✅ HECHO (2026-06-30)
 - Botón "Exportar Excel" en el header de TripDetailPage
 - Llama a `GET /api/trips/{id}/export`, descarga el `.xlsx` via blob response
 - Estado de carga mientras se genera el archivo
@@ -563,3 +562,4 @@ Tanto CLAUDE.md como CLAUDE.es.md deben actualizarse juntos.
 | 2026-06-28 | feature/trip-detail | Página de detalle de viaje con header sticky y barra de tabs con scroll horizontal. Tabs implementadas: ChecklistTab (barra de progreso, toggle, eliminar), ExpensesTab (selects de categoría/moneda/método de pago, total acumulado), AccommodationsTab (fechas check-in/check-out, ciudad, dirección), CitiesTab (lista anidada de PlaceToVisit con toggle visitado y link a Maps, formulario inline de agregar lugar por ciudad), SimTab (tipo SIM/eSIM, cobertura, toggle elegida — visible solo en viajes internacionales). Cada tab tiene su propio módulo de servicio en src/services/ y componente en src/tabs/. También se corrigió el error 500 de Npgsql: se agregó AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true) en Program.cs para que los campos DateTime enviados desde inputs HTML de fecha (Kind=Unspecified) sean aceptados por PostgreSQL. |
 | 2026-06-29 | feature/itinerary-tab | ItineraryTab: itineraryService.ts con getItinerary/createItineraryItem/deleteItineraryItem conectado a /api/trips/{id}/itinerary. ItineraryTab.tsx muestra los días ordenados por número de día como tarjetas con badge primario (número de día), fecha formateada, ciudad y filas de detalle opcionales para alojamiento, actividades, transporte, vuelo, observaciones y link clickeable. Formulario para agregar nuevos días con todos los campos. Reemplaza el placeholder ComingSoon en TripDetailPage. Todos los tabs del detalle de viaje están completos. |
 | 2026-06-29 | feature/lookup-management | Gestión de lookups: lookupService.ts con CRUD completo para categorías de gastos, métodos de pago y monedas. SettingsPage.tsx en /settings con tres secciones (componente LookupSection reutilizable para lookups de nombre, CurrencySection con campos código/símbolo/nombre). Link a /settings agregado en el header del dashboard. ExpensesTab muestra aviso con link a /settings cuando alguna lista de lookup está vacía. |
+| 2026-06-30 | feature/excel-export-ui | Excel export UI: exportService.ts llama a GET /api/trips/{id}/export y descarga la respuesta como blob. El header de TripDetailPage tiene un botón "Exportar Excel" con estado de carga mientras se genera el archivo. Se eliminó el componente ComingSoon que quedó sin uso de tabs anteriores (rompía el build de TypeScript). |
