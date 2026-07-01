@@ -495,8 +495,7 @@ Sin esto el usuario no puede crear gastos (no existen categorías ni monedas).
 - Llama a `GET /api/trips/{id}/export`, descarga el `.xlsx` via blob response
 - Estado de carga mientras se genera el archivo
 
-**Paso 4 · `feature/trip-editing`** *(pequeño)*
-Actualmente no hay forma de editar un viaje después de crearlo.
+**Paso 4 · `feature/trip-editing`** *(pequeño)* ✅ HECHO (2026-06-30)
 - Botón de edición (ícono lápiz) en el header de TripDetailPage
 - Modal reutilizando la misma estructura de NewTripModal
 - Llama a `PUT /api/trips/{id}`
@@ -563,3 +562,4 @@ Tanto CLAUDE.md como CLAUDE.es.md deben actualizarse juntos.
 | 2026-06-29 | feature/itinerary-tab | ItineraryTab: itineraryService.ts con getItinerary/createItineraryItem/deleteItineraryItem conectado a /api/trips/{id}/itinerary. ItineraryTab.tsx muestra los días ordenados por número de día como tarjetas con badge primario (número de día), fecha formateada, ciudad y filas de detalle opcionales para alojamiento, actividades, transporte, vuelo, observaciones y link clickeable. Formulario para agregar nuevos días con todos los campos. Reemplaza el placeholder ComingSoon en TripDetailPage. Todos los tabs del detalle de viaje están completos. |
 | 2026-06-29 | feature/lookup-management | Gestión de lookups: lookupService.ts con CRUD completo para categorías de gastos, métodos de pago y monedas. SettingsPage.tsx en /settings con tres secciones (componente LookupSection reutilizable para lookups de nombre, CurrencySection con campos código/símbolo/nombre). Link a /settings agregado en el header del dashboard. ExpensesTab muestra aviso con link a /settings cuando alguna lista de lookup está vacía. |
 | 2026-06-30 | feature/excel-export-ui | Excel export UI: exportService.ts llama a GET /api/trips/{id}/export y descarga la respuesta como blob. El header de TripDetailPage tiene un botón "Exportar Excel" con estado de carga mientras se genera el archivo. Se eliminó el componente ComingSoon que quedó sin uso de tabs anteriores (rompía el build de TypeScript). |
+| 2026-06-30 | feature/trip-editing | Edición de viajes: se agregó updateTrip() a tripService.ts que llama a PUT /api/trips/{id}. El header de TripDetailPage tiene un botón de lápiz que abre EditTripModal, precargado con los datos actuales del viaje y reutilizando la misma estructura de formulario que NewTripModal del dashboard. |

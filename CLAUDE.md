@@ -441,8 +441,7 @@ Without this the user cannot create expenses (no categories or currencies exist)
 - Calls `GET /api/trips/{id}/export`, downloads `.xlsx` via blob response
 - Loading state while the file is generated
 
-**Step 4 · `feature/trip-editing`** *(small)*
-Currently there is no way to edit a trip after creating it.
+**Step 4 · `feature/trip-editing`** *(small)* ✅ DONE (2026-06-30)
 - Edit button (pencil icon) in the TripDetailPage header
 - Modal reusing the same structure as NewTripModal
 - Calls `PUT /api/trips/{id}`
@@ -509,3 +508,4 @@ Both CLAUDE.md and CLAUDE.es.md must be updated together.
 | 2026-06-29 | feature/itinerary-tab | ItineraryTab: itineraryService.ts with getItinerary/createItineraryItem/deleteItineraryItem connected to /api/trips/{id}/itinerary. ItineraryTab.tsx displays days sorted by dayNumber as cards with a colored primary badge (day number), formatted date, city, and optional detail rows for accommodation, activities, transport, flight, observations, and a clickable link. Form to add new days with all fields. Replaced ComingSoon placeholder in TripDetailPage. All trip detail tabs are now complete. |
 | 2026-06-29 | feature/lookup-management | Lookup management: lookupService.ts with full CRUD for expense categories, payment methods, and currencies. SettingsPage.tsx at /settings with three sections (LookupSection reusable component for name-only lookups, CurrencySection with code/symbol/name fields). Link to /settings added to dashboard header. ExpensesTab shows a warning with link to /settings when any lookup list is empty. |
 | 2026-06-30 | feature/excel-export-ui | Excel export UI: exportService.ts calls GET /api/trips/{id}/export and downloads the response as a blob. TripDetailPage header has an "Export Excel" button with a loading state while the file is generated. Removed the unused ComingSoon component left over from earlier tabs (was breaking the TypeScript build). |
+| 2026-06-30 | feature/trip-editing | Trip editing: updateTrip() added to tripService.ts calling PUT /api/trips/{id}. TripDetailPage header has a pencil button that opens EditTripModal, prefilled with the trip's current data and reusing the same form structure as DashboardPage's NewTripModal. |
