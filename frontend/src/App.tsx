@@ -5,10 +5,14 @@ import RegisterPage from './pages/RegisterPage'
 import DashboardPage from './pages/DashboardPage'
 import TripDetailPage from './pages/TripDetailPage'
 import SettingsPage from './pages/SettingsPage'
+import OfflineBanner from './components/OfflineBanner'
+import InstallPrompt from './components/InstallPrompt'
 
 export default function App() {
   return (
     <BrowserRouter>
+      <OfflineBanner />
+      <InstallPrompt />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
