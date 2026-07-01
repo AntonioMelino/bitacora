@@ -415,6 +415,47 @@ is always `ConnectionStrings:DefaultConnection`.
 
 ---
 
+## Deployment
+
+**Backend (Railway)**
+- Root Directory: `backend` (required — `Bitacora.API` has relative
+  `ProjectReference`s to `Bitacora.Application`, `Bitacora.Infrastructure`,
+  and `Bitacora.Domain`, all siblings inside `backend/`)
+- Build/start commands are defined in `backend/railpack.json` (Railway's
+  Railpack builder only auto-detects a `*.csproj` at the root of the
+  build context; ours only has `Bitacora.slnx` plus 4 project folders,
+  so detection needs to be explicit): publishes
+  `Bitacora.API/Bitacora.API.csproj` and runs the resulting DLL
+- Networking → Generate Domain sets a target port (e.g. `8080`); Railway
+  injects that value as the `PORT` env var at runtime
+- `Program.cs` reads `PORT` and binds Kestrel to `http://0.0.0.0:$PORT`
+  when present. It also skips `UseHttpsRedirection()` on Railway, since
+  Railway's edge proxy already terminates TLS and forwards plain HTTP —
+  keeping the redirect on causes a redirect loop
+- On every startup, `Program.cs` runs `dbContext.Database.Migrate()`
+  automatically, applying any pending EF Core migrations against
+  Supabase. No manual `dotnet ef database update` step needed after
+  deploy (still required for local development)
+- Required environment variables in Railway: `ASPNETCORE_ENVIRONMENT`,
+  `ConnectionStrings__DefaultConnection`, `JwtSettings__Secret`,
+  `JwtSettings__Issuer`, `JwtSettings__Audience`,
+  `Cors__AllowedOrigins__0` (the deployed Vercel URL, no trailing slash)
+
+**Frontend (Vercel)**
+- Root Directory: `frontend`
+- Framework preset: Vite (auto-detected). Build command `npm run build`,
+  output directory `dist`
+- Required environment variable: `VITE_API_URL` (the deployed Railway
+  URL, no trailing slash) — read at build time by every service in
+  `src/services/`, so changing it requires a redeploy
+
+**Connecting the two**
+- Vercel needs Railway's URL in `VITE_API_URL`
+- Railway needs Vercel's URL in `Cors__AllowedOrigins__0`
+- Every push to `main` triggers an automatic redeploy on both platforms
+
+---
+
 ## Development roadmap
 
 ### Phase 1 — Backend ✅ COMPLETE

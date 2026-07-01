@@ -469,6 +469,52 @@ es siempre `ConnectionStrings:DefaultConnection`.
 
 ---
 
+## Despliegue
+
+**Backend (Railway)**
+- Root Directory: `backend` (obligatorio — `Bitacora.API` tiene
+  `ProjectReference`s relativos a `Bitacora.Application`,
+  `Bitacora.Infrastructure` y `Bitacora.Domain`, todos hermanos dentro
+  de `backend/`)
+- Los comandos de build/start están definidos en `backend/railpack.json`
+  (el builder Railpack de Railway solo autodetecta un `*.csproj` en la
+  raíz del build context; nosotros solo tenemos `Bitacora.slnx` más 4
+  carpetas de proyecto, así que la detección necesita ser explícita):
+  publica `Bitacora.API/Bitacora.API.csproj` y ejecuta el DLL resultante
+- En Networking → Generate Domain se define un puerto de destino (ej.
+  `8080`); Railway inyecta ese valor como variable de entorno `PORT` en
+  runtime
+- `Program.cs` lee `PORT` y hace que Kestrel escuche en
+  `http://0.0.0.0:$PORT` cuando está presente. También omite
+  `UseHttpsRedirection()` en Railway, ya que el proxy de borde de
+  Railway ya termina el TLS y reenvía HTTP plano — dejar el redirect
+  activo provoca un loop de redirecciones
+- En cada arranque, `Program.cs` corre `dbContext.Database.Migrate()`
+  automáticamente, aplicando cualquier migración pendiente de EF Core
+  contra Supabase. No hace falta correr `dotnet ef database update` a
+  mano después de cada deploy (sigue siendo necesario en desarrollo
+  local)
+- Variables de entorno requeridas en Railway: `ASPNETCORE_ENVIRONMENT`,
+  `ConnectionStrings__DefaultConnection`, `JwtSettings__Secret`,
+  `JwtSettings__Issuer`, `JwtSettings__Audience`,
+  `Cors__AllowedOrigins__0` (la URL desplegada de Vercel, sin barra
+  final)
+
+**Frontend (Vercel)**
+- Root Directory: `frontend`
+- Framework preset: Vite (autodetectado). Build command `npm run build`,
+  output directory `dist`
+- Variable de entorno requerida: `VITE_API_URL` (la URL desplegada de
+  Railway, sin barra final) — se lee en build time desde cada servicio
+  de `src/services/`, así que cambiarla requiere un redeploy
+
+**Conectar ambos**
+- Vercel necesita la URL de Railway en `VITE_API_URL`
+- Railway necesita la URL de Vercel en `Cors__AllowedOrigins__0`
+- Cada push a `main` dispara un redeploy automático en ambas plataformas
+
+---
+
 ## Roadmap de desarrollo
 
 ### Fase 1 — Backend ✅ COMPLETO
