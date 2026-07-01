@@ -27,6 +27,8 @@ export interface CreateTripRequest {
   isInternational: boolean
 }
 
+export type UpdateTripRequest = CreateTripRequest
+
 async function unwrap<T>(promise: Promise<{ data: { success: boolean; data: T; message: string } }>): Promise<T> {
   const { data } = await promise
   if (!data.success) throw new Error(data.message ?? 'Error del servidor')
@@ -43,6 +45,10 @@ export function getTripById(id: number): Promise<Trip> {
 
 export function createTrip(body: CreateTripRequest): Promise<Trip> {
   return unwrap(api.post('/api/trips', body, { headers: authHeaders() }))
+}
+
+export function updateTrip(id: number, body: UpdateTripRequest): Promise<Trip> {
+  return unwrap(api.put(`/api/trips/${id}`, body, { headers: authHeaders() }))
 }
 
 export function deleteTrip(id: number): Promise<void> {

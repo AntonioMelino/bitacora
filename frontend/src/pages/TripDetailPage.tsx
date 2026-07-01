@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, type FormEvent } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { getTripById, type Trip } from '../services/tripService'
+import { getTripById, updateTrip, type Trip, type UpdateTripRequest } from '../services/tripService'
 import { exportTrip } from '../services/exportService'
 import ChecklistTab from '../tabs/ChecklistTab'
 import ExpensesTab from '../tabs/ExpensesTab'
@@ -26,6 +26,130 @@ function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
+function toDateInputValue(iso: string) {
+  return iso.slice(0, 10)
+}
+
+function EditTripModal({ trip, onClose, onUpdated }: { trip: Trip; onClose: () => void; onUpdated: (t: Trip) => void }) {
+  const [form, setForm] = useState<UpdateTripRequest>({
+    name: trip.name,
+    description: trip.description,
+    startDate: toDateInputValue(trip.startDate),
+    endDate: toDateInputValue(trip.endDate),
+    isInternational: trip.isInternational,
+  })
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  function set(field: keyof UpdateTripRequest, value: string | boolean) {
+    setForm((prev) => ({ ...prev, [field]: value }))
+  }
+
+  async function handleSubmit(e: FormEvent) {
+    e.preventDefault()
+    setError('')
+    if (!form.name.trim()) { setError('El nombre es obligatorio'); return }
+    if (!form.startDate || !form.endDate) { setError('Las fechas son obligatorias'); return }
+    if (form.endDate < form.startDate) { setError('La fecha de fin debe ser posterior a la de inicio'); return }
+    setLoading(true)
+    try {
+      const updated = await updateTrip(trip.id, form)
+      onUpdated(updated)
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Error al actualizar el viaje')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl p-6">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="font-heading font-bold text-xl text-foreground">Editar viaje</h2>
+          <button onClick={onClose} className="text-foreground/40 hover:text-foreground text-2xl leading-none">×</button>
+        </div>
+
+        {error && (
+          <div className="mb-4 p-3 rounded-lg bg-error/10 border border-error/30 text-error text-sm">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1">Nombre del viaje *</label>
+            <input
+              type="text"
+              required
+              value={form.name}
+              onChange={(e) => set('name', e.target.value)}
+              placeholder="Ej: Europa 2026"
+              className="w-full px-4 py-3 rounded-xl border border-foreground/20 text-foreground placeholder:text-foreground/35 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1">Descripción</label>
+            <textarea
+              value={form.description}
+              onChange={(e) => set('description', e.target.value)}
+              placeholder="Países, ciudades, motivo del viaje..."
+              rows={2}
+              className="w-full px-4 py-3 rounded-xl border border-foreground/20 text-foreground placeholder:text-foreground/35 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors resize-none"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1">Fecha inicio *</label>
+              <input
+                type="date"
+                required
+                value={form.startDate}
+                onChange={(e) => set('startDate', e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-foreground/20 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1">Fecha fin *</label>
+              <input
+                type="date"
+                required
+                value={form.endDate}
+                onChange={(e) => set('endDate', e.target.value)}
+                className="w-full px-4 py-3 rounded-xl border border-foreground/20 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
+              />
+            </div>
+          </div>
+
+          <label className="flex items-center gap-3 cursor-pointer">
+            <div className="relative">
+              <input
+                type="checkbox"
+                checked={form.isInternational}
+                onChange={(e) => set('isInternational', e.target.checked)}
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 rounded-full bg-foreground/20 peer-checked:bg-secondary transition-colors" />
+              <div className="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5" />
+            </div>
+            <span className="text-sm font-medium text-foreground">¿Es un viaje internacional? 🌍</span>
+          </label>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="mt-1 w-full py-3 rounded-xl bg-primary text-white font-bold text-base hover:bg-primary-dark disabled:opacity-60 disabled:cursor-not-allowed transition-colors"
+          >
+            {loading ? 'Guardando...' : 'Guardar cambios'}
+          </button>
+        </form>
+      </div>
+    </div>
+  )
+}
+
 export default function TripDetailPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -34,6 +158,7 @@ export default function TripDetailPage() {
   const [error, setError] = useState('')
   const [activeTab, setActiveTab] = useState<TabId>('checklist')
   const [exporting, setExporting] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -86,7 +211,16 @@ export default function TripDetailPage() {
           </Link>
           <div className="flex items-start justify-between gap-2 mt-1">
             <div>
-              <h1 className="font-heading font-extrabold text-xl text-foreground">{trip.name}</h1>
+              <div className="flex items-center gap-2">
+                <h1 className="font-heading font-extrabold text-xl text-foreground">{trip.name}</h1>
+                <button
+                  onClick={() => setShowEditModal(true)}
+                  className="text-foreground/40 hover:text-primary transition-colors"
+                  aria-label="Editar viaje"
+                >
+                  ✏️
+                </button>
+              </div>
               <p className="text-xs text-foreground/50 mt-0.5">
                 📅 {formatDate(trip.startDate)} — {formatDate(trip.endDate)}
                 {trip.isInternational && <span className="ml-2">🌍 Internacional</span>}
@@ -132,6 +266,14 @@ export default function TripDetailPage() {
         {activeTab === 'cities'         && <CitiesTab tripId={trip.id} />}
         {activeTab === 'sim'            && <SimTab tripId={trip.id} />}
       </main>
+
+      {showEditModal && (
+        <EditTripModal
+          trip={trip}
+          onClose={() => setShowEditModal(false)}
+          onUpdated={(updated) => { setTrip(updated); setShowEditModal(false) }}
+        />
+      )}
     </div>
   )
 }
