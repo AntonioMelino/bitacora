@@ -156,7 +156,7 @@ export default function TripDetailPage() {
   const [trip, setTrip] = useState<Trip | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [activeTab, setActiveTab] = useState<TabId>('checklist')
+  const [activeTab, setActiveTab] = useState<TabId | null>(null)
   const [exporting, setExporting] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
 
@@ -237,35 +237,47 @@ export default function TripDetailPage() {
         </div>
       </header>
 
-      {/* Tab bar */}
-      <div className="bg-white border-b border-foreground/8 sticky top-[73px] z-10 overflow-x-auto">
-        <div className="max-w-5xl mx-auto flex px-4">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-1.5 px-4 py-3 text-sm font-semibold whitespace-nowrap border-b-2 transition-colors ${
-                activeTab === tab.id
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-foreground/50 hover:text-foreground'
-              }`}
-            >
-              <span>{tab.emoji}</span>
-              <span>{tab.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
+      {activeTab === null ? (
+        /* Menu grid */
+        <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className="aspect-square bg-white rounded-2xl shadow-sm border border-foreground/8 flex flex-col items-center justify-center gap-2 hover:shadow-md hover:border-primary/30 transition-shadow"
+              >
+                <span className="text-4xl">{tab.emoji}</span>
+                <span className="font-heading font-bold text-sm text-foreground">{tab.label}</span>
+              </button>
+            ))}
+          </div>
+        </main>
+      ) : (
+        <>
+          {/* Back to menu bar */}
+          <div className="bg-white border-b border-foreground/8 sticky top-[73px] z-10">
+            <div className="max-w-5xl mx-auto px-4 py-3">
+              <button
+                onClick={() => setActiveTab(null)}
+                className="flex items-center gap-1.5 text-sm font-semibold text-foreground/60 hover:text-primary transition-colors"
+              >
+                ← Volver al menú
+              </button>
+            </div>
+          </div>
 
-      {/* Tab content */}
-      <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-6">
-        {activeTab === 'checklist'      && <ChecklistTab tripId={trip.id} />}
-        {activeTab === 'expenses'       && <ExpensesTab tripId={trip.id} />}
-        {activeTab === 'itinerary'      && <ItineraryTab tripId={trip.id} />}
-        {activeTab === 'accommodations' && <AccommodationsTab tripId={trip.id} />}
-        {activeTab === 'cities'         && <CitiesTab tripId={trip.id} />}
-        {activeTab === 'sim'            && <SimTab tripId={trip.id} />}
-      </main>
+          {/* Tab content */}
+          <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-6">
+            {activeTab === 'checklist'      && <ChecklistTab tripId={trip.id} />}
+            {activeTab === 'expenses'       && <ExpensesTab tripId={trip.id} />}
+            {activeTab === 'itinerary'      && <ItineraryTab tripId={trip.id} />}
+            {activeTab === 'accommodations' && <AccommodationsTab tripId={trip.id} />}
+            {activeTab === 'cities'         && <CitiesTab tripId={trip.id} />}
+            {activeTab === 'sim'            && <SimTab tripId={trip.id} />}
+          </main>
+        </>
+      )}
 
       {showEditModal && (
         <EditTripModal
