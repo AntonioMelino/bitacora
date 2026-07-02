@@ -417,7 +417,10 @@ is always `ConnectionStrings:DefaultConnection`.
 
 ## Deployment
 
-**Backend (Railway)**
+**Status: LIVE.** Backend on Railway, frontend on Vercel, both deployed
+from `main` and confirmed working end to end (register/login tested).
+
+**Backend (Railway)** — https://bitacora-production-839a.up.railway.app
 - Root Directory: `backend` (required — `Bitacora.API` has relative
   `ProjectReference`s to `Bitacora.Application`, `Bitacora.Infrastructure`,
   and `Bitacora.Domain`, all siblings inside `backend/`)
@@ -436,18 +439,41 @@ is always `ConnectionStrings:DefaultConnection`.
   automatically, applying any pending EF Core migrations against
   Supabase. No manual `dotnet ef database update` step needed after
   deploy (still required for local development)
+- **`ConnectionStrings__DefaultConnection` must use Supabase's
+  connection pooler host** (`aws-1-sa-east-1.pooler.supabase.com:5432`,
+  username `postgres.<project-ref>`), not the direct `db.<project-ref
+  >.supabase.co` host. The direct host resolves to an IPv6-only
+  address and Railway has no IPv6 egress, so the app crashed on
+  startup with `Network is unreachable` until this was switched.
+  Local development still uses the direct host fine (IPv6 works there)
 - Required environment variables in Railway: `ASPNETCORE_ENVIRONMENT`,
-  `ConnectionStrings__DefaultConnection`, `JwtSettings__Secret`,
-  `JwtSettings__Issuer`, `JwtSettings__Audience`,
+  `ConnectionStrings__DefaultConnection` (pooler host, see above),
+  `JwtSettings__Secret`, `JwtSettings__Issuer`, `JwtSettings__Audience`,
   `Cors__AllowedOrigins__0` (the deployed Vercel URL, no trailing slash)
+- Known non-blocking warnings in the logs: `Cannot load library
+  libgssapi_krb5.so.2` (the minimal aspnet image lacks a Kerberos lib
+  Npgsql probes for; falls back fine) and a DataProtection keys warning
+  (keys aren't persisted across container restarts — harmless today
+  since login uses JWT with its own secret, would only matter if
+  password-reset/2FA tokens are added later)
 
-**Frontend (Vercel)**
+**Frontend (Vercel)** — https://bitacora-travel.vercel.app
 - Root Directory: `frontend`
 - Framework preset: Vite (auto-detected). Build command `npm run build`,
   output directory `dist`
 - Required environment variable: `VITE_API_URL` (the deployed Railway
   URL, no trailing slash) — read at build time by every service in
   `src/services/`, so changing it requires a redeploy
+- **`VITE_API_URL` must include the `https://` scheme.** Setting it to
+  a bare hostname (no scheme) makes the browser treat it as a relative
+  path on Vercel's own origin instead of an external host — requests
+  end up as `https://<vercel-domain>/<railway-hostname>/api/...` and
+  Vercel 404s them. This broke registration once already; if API calls
+  ever 404 with the Railway hostname appearing inside the request path
+  instead of as the host, this is the cause
+- Renaming the Vercel project (Settings → General → Project Name)
+  changes the `*.vercel.app` subdomain immediately. `Cors__AllowedOrigins__0`
+  in Railway must be updated to match right after
 
 **Connecting the two**
 - Vercel needs Railway's URL in `VITE_API_URL`
@@ -551,3 +577,4 @@ Both CLAUDE.md and CLAUDE.es.md must be updated together.
 | 2026-06-30 | feature/trip-editing | Trip editing: updateTrip() added to tripService.ts calling PUT /api/trips/{id}. TripDetailPage header has a pencil button that opens EditTripModal, prefilled with the trip's current data and reusing the same form structure as DashboardPage's NewTripModal. |
 | 2026-06-30 | feature/trip-menu-navigation | Trip detail navigation redesign: replaced the horizontal tab bar with a menu screen of square cards (one per section: Checklist, Gastos, Itinerario, Alojamientos, Ciudades, SIM/eSIM). Selecting a card shows that section's content with a "Volver al menu" button in place of the tab bar. |
 | 2026-06-30 | feature/pwa | PWA offline support: vite-plugin-pwa configured in vite.config.ts with autoUpdate registration, a manifest (name, colors, icons — currently reusing favicon.svg), and Workbox runtime caching (StaleWhileRevalidate for /api/*, CacheFirst for Google Fonts). Added OfflineBanner (shown when the browser goes offline) and InstallPrompt (mobile install banner via beforeinstallprompt), both mounted globally in App.tsx. Phase 2 (React frontend) is now complete. |
+| 2026-07-02 | feature/deploy-config, feature/railpack-fix, feature/railpack-fix-2, feature/docker-deploy, feature/fix-timestamp-migration-drift | First production deploy: backend on Railway (https://bitacora-production-839a.up.railway.app), frontend on Vercel (https://bitacora-travel.vercel.app). Program.cs now binds Kestrel to the Railway PORT env var, skips UseHttpsRedirection behind Railway's proxy, and runs Database.Migrate() automatically on startup. Backend builds via backend/Dockerfile (multi-stage) after Railway's Railpack builder couldn't handle the multi-project layout. Fixed a pre-existing EF Core migration drift (timestamp with/without time zone mismatch caused by Npgsql.EnableLegacyTimestampBehavior) that only surfaced once automatic migrations started validating the model. Production DB connection uses Supabase's connection pooler host instead of the direct host (which is IPv6-only and unreachable from Railway). Confirmed working end to end: registration and login tested successfully in production. |

@@ -471,7 +471,11 @@ es siempre `ConnectionStrings:DefaultConnection`.
 
 ## Despliegue
 
-**Backend (Railway)**
+**Estado: EN VIVO.** Backend en Railway, frontend en Vercel, ambos
+desplegados desde `main` y confirmados funcionando de punta a punta
+(registro/login probados).
+
+**Backend (Railway)** — https://bitacora-production-839a.up.railway.app
 - Root Directory: `backend` (obligatorio — `Bitacora.API` tiene
   `ProjectReference`s relativos a `Bitacora.Application`,
   `Bitacora.Infrastructure` y `Bitacora.Domain`, todos hermanos dentro
@@ -495,19 +499,45 @@ es siempre `ConnectionStrings:DefaultConnection`.
   contra Supabase. No hace falta correr `dotnet ef database update` a
   mano después de cada deploy (sigue siendo necesario en desarrollo
   local)
+- **`ConnectionStrings__DefaultConnection` debe usar el connection
+  pooler de Supabase** (`aws-1-sa-east-1.pooler.supabase.com:5432`,
+  usuario `postgres.<project-ref>`), no el host directo
+  (`db.<project-ref>.supabase.co`). El host directo resuelve solo a
+  una dirección IPv6, y Railway no tiene salida IPv6, por lo que la
+  app crasheaba al arrancar con `Network is unreachable` hasta que se
+  cambió esto. El desarrollo local sigue usando el host directo sin
+  problema (ahí sí hay salida IPv6)
 - Variables de entorno requeridas en Railway: `ASPNETCORE_ENVIRONMENT`,
-  `ConnectionStrings__DefaultConnection`, `JwtSettings__Secret`,
-  `JwtSettings__Issuer`, `JwtSettings__Audience`,
+  `ConnectionStrings__DefaultConnection` (host del pooler, ver arriba),
+  `JwtSettings__Secret`, `JwtSettings__Issuer`, `JwtSettings__Audience`,
   `Cors__AllowedOrigins__0` (la URL desplegada de Vercel, sin barra
   final)
+- Warnings conocidos y no bloqueantes en los logs: `Cannot load
+  library libgssapi_krb5.so.2` (la imagen mínima de aspnet no tiene
+  una librería de Kerberos que Npgsql prueba; cae bien igual) y un
+  warning de DataProtection keys (las claves no persisten entre
+  reinicios del contenedor — inofensivo hoy porque el login usa JWT
+  con secreto propio, solo importaría si más adelante se agrega
+  reseteo de contraseña o 2FA)
 
-**Frontend (Vercel)**
+**Frontend (Vercel)** — https://bitacora-travel.vercel.app
 - Root Directory: `frontend`
 - Framework preset: Vite (autodetectado). Build command `npm run build`,
   output directory `dist`
 - Variable de entorno requerida: `VITE_API_URL` (la URL desplegada de
   Railway, sin barra final) — se lee en build time desde cada servicio
   de `src/services/`, así que cambiarla requiere un redeploy
+- **`VITE_API_URL` debe incluir el esquema `https://`.** Si se
+  configura con un hostname pelado (sin esquema), el navegador lo trata
+  como una ruta relativa al propio origen de Vercel en vez de un host
+  externo — los pedidos terminan como
+  `https://<dominio-vercel>/<hostname-railway>/api/...` y Vercel
+  responde 404. Esto ya rompió el registro una vez; si algún pedido a
+  la API da 404 con el hostname de Railway apareciendo dentro del path
+  en vez de como host, esta es la causa
+- Renombrar el proyecto en Vercel (Settings → General → Project Name)
+  cambia el subdominio `*.vercel.app` al instante. Hay que actualizar
+  `Cors__AllowedOrigins__0` en Railway para que coincida justo después
 
 **Conectar ambos**
 - Vercel necesita la URL de Railway en `VITE_API_URL`
@@ -611,3 +641,4 @@ Tanto CLAUDE.md como CLAUDE.es.md deben actualizarse juntos.
 | 2026-06-30 | feature/trip-editing | Edición de viajes: se agregó updateTrip() a tripService.ts que llama a PUT /api/trips/{id}. El header de TripDetailPage tiene un botón de lápiz que abre EditTripModal, precargado con los datos actuales del viaje y reutilizando la misma estructura de formulario que NewTripModal del dashboard. |
 | 2026-06-30 | feature/trip-menu-navigation | Rediseño de navegación en el detalle de viaje: se reemplazó la barra de tabs horizontal por una pantalla de menú con cards cuadradas (una por sección: Checklist, Gastos, Itinerario, Alojamientos, Ciudades, SIM/eSIM). Al elegir una card se muestra el contenido de esa sección con un botón "Volver al menú" en lugar de la barra de tabs. |
 | 2026-06-30 | feature/pwa | Soporte PWA offline: vite-plugin-pwa configurado en vite.config.ts con registro autoUpdate, un manifest (nombre, colores, íconos — reutilizando favicon.svg por ahora) y caché con Workbox (StaleWhileRevalidate para /api/*, CacheFirst para Google Fonts). Se agregaron OfflineBanner (aparece cuando el navegador pierde conexión) e InstallPrompt (banner de instalación en mobile via beforeinstallprompt), montados globalmente en App.tsx. La Fase 2 (frontend React) queda completa. |
+| 2026-07-02 | feature/deploy-config, feature/railpack-fix, feature/railpack-fix-2, feature/docker-deploy, feature/fix-timestamp-migration-drift | Primer despliegue a producción: backend en Railway (https://bitacora-production-839a.up.railway.app), frontend en Vercel (https://bitacora-travel.vercel.app). Program.cs ahora hace que Kestrel escuche en la variable de entorno PORT de Railway, omite UseHttpsRedirection detrás del proxy de Railway, y corre Database.Migrate() automáticamente al arrancar. El backend se construye con backend/Dockerfile (multi-stage) después de que el builder Railpack de Railway no pudo manejar el layout multi-proyecto. Se corrigió un drift de migraciones de EF Core preexistente (desfasaje timestamp con/sin zona horaria causado por Npgsql.EnableLegacyTimestampBehavior) que solo salió a la luz cuando las migraciones automáticas empezaron a validar el modelo. La conexión a la base en producción usa el connection pooler de Supabase en vez del host directo (que es solo IPv6 e inalcanzable desde Railway). Confirmado funcionando de punta a punta: registro y login probados exitosamente en producción. |
