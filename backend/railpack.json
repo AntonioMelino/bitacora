@@ -6,10 +6,13 @@
   },
   "steps": {
     "install": {
-      "commands": ["dotnet restore Bitacora.API/Bitacora.API.csproj"]
+      "commands": ["echo 'restore runs in the build step, after full source is available'"]
     },
     "build": {
-      "commands": ["dotnet publish Bitacora.API/Bitacora.API.csproj -c Release -o out --no-restore"]
+      "commands": [
+        "dotnet restore Bitacora.API/Bitacora.API.csproj",
+        "dotnet publish Bitacora.API/Bitacora.API.csproj -c Release -o out --no-restore"
+      ]
     }
   },
   "deploy": {
