@@ -421,11 +421,11 @@ is always `ConnectionStrings:DefaultConnection`.
 - Root Directory: `backend` (required — `Bitacora.API` has relative
   `ProjectReference`s to `Bitacora.Application`, `Bitacora.Infrastructure`,
   and `Bitacora.Domain`, all siblings inside `backend/`)
-- Build/start commands are defined in `backend/railpack.json` (Railway's
-  Railpack builder only auto-detects a `*.csproj` at the root of the
-  build context; ours only has `Bitacora.slnx` plus 4 project folders,
-  so detection needs to be explicit): publishes
-  `Bitacora.API/Bitacora.API.csproj` and runs the resulting DLL
+- Built via `backend/Dockerfile` (multi-stage: restore, publish, run on
+  the aspnet runtime image). Railway's default Railpack builder was
+  tried first but couldn't reliably handle this multi-project layout
+  (opaque two-phase file-copy/caching assumptions that don't fit
+  nested `.csproj` files), so the build was made fully explicit instead
 - Networking → Generate Domain sets a target port (e.g. `8080`); Railway
   injects that value as the `PORT` env var at runtime
 - `Program.cs` reads `PORT` and binds Kestrel to `http://0.0.0.0:$PORT`

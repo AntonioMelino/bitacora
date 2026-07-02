@@ -476,11 +476,12 @@ es siempre `ConnectionStrings:DefaultConnection`.
   `ProjectReference`s relativos a `Bitacora.Application`,
   `Bitacora.Infrastructure` y `Bitacora.Domain`, todos hermanos dentro
   de `backend/`)
-- Los comandos de build/start están definidos en `backend/railpack.json`
-  (el builder Railpack de Railway solo autodetecta un `*.csproj` en la
-  raíz del build context; nosotros solo tenemos `Bitacora.slnx` más 4
-  carpetas de proyecto, así que la detección necesita ser explícita):
-  publica `Bitacora.API/Bitacora.API.csproj` y ejecuta el DLL resultante
+- Se construye con `backend/Dockerfile` (multi-stage: restore, publish,
+  y corre sobre la imagen de runtime aspnet). Primero se probó con el
+  builder Railpack (por defecto en Railway), pero no pudo manejar de
+  forma confiable este layout multi-proyecto (supuestos opacos sobre
+  copiado de archivos en dos fases que no encajan con `.csproj`
+  anidados), así que el build se hizo totalmente explícito
 - En Networking → Generate Domain se define un puerto de destino (ej.
   `8080`); Railway inyecta ese valor como variable de entorno `PORT` en
   runtime
