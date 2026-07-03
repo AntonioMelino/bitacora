@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { login } from '../services/authService'
+import PasswordInput from '../components/ui/PasswordInput'
 
 export default function LoginPage() {
   const navigate = useNavigate()
@@ -67,13 +68,11 @@ export default function LoginPage() {
               <label className="block text-sm font-medium text-foreground mb-1">
                 Contraseña
               </label>
-              <input
-                type="password"
+              <PasswordInput
                 required
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={setPassword}
                 placeholder="••••••••"
-                className="w-full px-4 py-3 rounded-xl border border-foreground/20 text-foreground placeholder:text-foreground/35 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
               />
             </div>
 
