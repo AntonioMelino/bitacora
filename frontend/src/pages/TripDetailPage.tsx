@@ -1,6 +1,7 @@
 import { useState, useEffect, type FormEvent } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { getTripById, updateTrip, type Trip, type UpdateTripRequest } from '../services/tripService'
+import { alignEndDate } from '../utils/dates'
 import { exportTrip } from '../services/exportService'
 import ChecklistTab from '../tabs/ChecklistTab'
 import ExpensesTab from '../tabs/ExpensesTab'
@@ -107,7 +108,10 @@ function EditTripModal({ trip, onClose, onUpdated }: { trip: Trip; onClose: () =
                 type="date"
                 required
                 value={form.startDate}
-                onChange={(e) => set('startDate', e.target.value)}
+                onChange={(e) => {
+                  const startDate = e.target.value
+                  setForm((prev) => ({ ...prev, startDate, endDate: alignEndDate(startDate, prev.endDate) }))
+                }}
                 className="w-full px-4 py-3 rounded-xl border border-foreground/20 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
               />
             </div>
