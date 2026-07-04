@@ -3,6 +3,7 @@ import {
   getAccommodations, createAccommodation, deleteAccommodation,
   type Accommodation, type CreateAccommodationRequest,
 } from '../services/accommodationService'
+import { alignEndDate } from '../utils/dates'
 
 const EMPTY: CreateAccommodationRequest = { name: '', address: '', city: '', checkIn: '', checkOut: '', observations: '' }
 const inputCls = 'w-full px-3 py-2.5 rounded-xl border border-foreground/20 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary'
@@ -63,7 +64,10 @@ export default function AccommodationsTab({ tripId }: { tripId: number }) {
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="text-xs text-foreground/60 mb-1 block">Check-in *</label>
-              <input required type="date" value={form.checkIn} onChange={(e) => setField('checkIn', e.target.value)} className={inputCls} />
+              <input required type="date" value={form.checkIn} onChange={(e) => {
+                const checkIn = e.target.value
+                setForm((p) => ({ ...p, checkIn, checkOut: alignEndDate(checkIn, p.checkOut) }))
+              }} className={inputCls} />
             </div>
             <div>
               <label className="text-xs text-foreground/60 mb-1 block">Check-out *</label>

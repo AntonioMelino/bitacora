@@ -1,6 +1,7 @@
 import { useState, useEffect, type FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { getTrips, createTrip, deleteTrip, type Trip, type CreateTripRequest } from '../services/tripService'
+import { alignEndDate } from '../utils/dates'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -147,7 +148,10 @@ function NewTripModal({ onClose, onCreated }: { onClose: () => void; onCreated: 
                 type="date"
                 required
                 value={form.startDate}
-                onChange={(e) => set('startDate', e.target.value)}
+                onChange={(e) => {
+                  const startDate = e.target.value
+                  setForm((prev) => ({ ...prev, startDate, endDate: alignEndDate(startDate, prev.endDate) }))
+                }}
                 className="w-full px-4 py-3 rounded-xl border border-foreground/20 text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
               />
             </div>
