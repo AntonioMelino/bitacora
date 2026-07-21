@@ -2,6 +2,7 @@ import { useState, useEffect, type FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { getTrips, createTrip, deleteTrip, type Trip, type CreateTripRequest } from '../services/tripService'
 import { alignEndDate } from '../utils/dates'
+import AppTitle from '../components/ui/AppTitle'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -231,7 +232,7 @@ export default function DashboardPage() {
 
       <header className="bg-white border-b border-foreground/8 px-6 py-4 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
-          <span className="font-heading font-bold text-2xl text-primary">Bitácora ✈️</span>
+          <AppTitle />
           <div className="flex items-center gap-4">
             <Link to="/settings" className="text-sm text-foreground/50 hover:text-foreground transition-colors font-medium">
               ⚙️ Configuración
