@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { register } from '../services/authService'
 import PasswordInput from '../components/ui/PasswordInput'
+import AppTitle from '../components/ui/AppTitle'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
@@ -44,9 +45,7 @@ export default function RegisterPage() {
 
         <div className="text-center mb-8">
           <Link to="/" className="inline-block">
-            <span className="font-heading font-bold text-3xl text-primary">
-              Bitácora ✈️
-            </span>
+            <AppTitle size="lg" />
           </Link>
           <p className="mt-2 text-foreground/60 text-sm">Creá tu cuenta gratis</p>
         </div>

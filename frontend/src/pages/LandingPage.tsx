@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import AppTitle from '../components/ui/AppTitle'
 
 const features = [
   {
@@ -39,9 +40,7 @@ export default function LandingPage() {
 
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 py-4 max-w-5xl mx-auto">
-        <span className="font-heading font-bold text-2xl text-primary">
-          Bitácora ✈️
-        </span>
+        <AppTitle />
         <div className="flex gap-3">
           <Link
             to="/login"
