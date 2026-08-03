@@ -79,11 +79,12 @@ function NewTripModal({ onClose, onCreated }: { onClose: () => void; onCreated: 
     startDate: '',
     endDate: '',
     isInternational: false,
+    budget: null,
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  function set(field: keyof CreateTripRequest, value: string | boolean) {
+  function set(field: keyof CreateTripRequest, value: string | boolean | number | null) {
     setForm((prev) => ({ ...prev, [field]: value }))
   }
 
@@ -181,6 +182,19 @@ function NewTripModal({ onClose, onCreated }: { onClose: () => void; onCreated: 
             </div>
             <span className="text-sm font-medium text-foreground">¿Es un viaje internacional? 🌍</span>
           </label>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1">Presupuesto (opcional)</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              value={form.budget ?? ''}
+              onChange={(e) => set('budget', e.target.value ? parseFloat(e.target.value) : null)}
+              placeholder="Ej: 500000"
+              className="w-full px-4 py-3 rounded-xl border border-foreground/20 text-foreground placeholder:text-foreground/35 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
+            />
+          </div>
 
           <button
             type="submit"

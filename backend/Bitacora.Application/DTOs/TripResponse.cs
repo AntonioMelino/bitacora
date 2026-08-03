@@ -8,5 +8,6 @@ public class TripResponse
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public bool IsInternational { get; set; }
+    public decimal? Budget { get; set; }
     public DateTime CreatedAt { get; set; }
 }

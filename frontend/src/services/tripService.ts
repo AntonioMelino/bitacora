@@ -16,6 +16,7 @@ export interface Trip {
   startDate: string
   endDate: string
   isInternational: boolean
+  budget: number | null
   createdAt: string
 }
 
@@ -25,6 +26,7 @@ export interface CreateTripRequest {
   startDate: string
   endDate: string
   isInternational: boolean
+  budget: number | null
 }
 
 export type UpdateTripRequest = CreateTripRequest
