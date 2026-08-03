@@ -16,7 +16,7 @@ const EMPTY: CreateExpenseRequest = {
 
 const inputCls = 'w-full px-3 py-2.5 rounded-xl border border-foreground/20 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary'
 
-export default function ExpensesTab({ tripId }: { tripId: number }) {
+export default function ExpensesTab({ tripId, budget }: { tripId: number; budget: number | null }) {
   const [expenses, setExpenses] = useState<Expense[]>([])
   const [categories, setCategories] = useState<LookupItem[]>([])
   const [methods, setMethods] = useState<LookupItem[]>([])
@@ -79,15 +79,37 @@ export default function ExpensesTab({ tripId }: { tripId: number }) {
         </div>
       )}
 
-      <div className="flex items-center justify-between mb-5">
-        {expenses.length > 0 && (
+      <div className="flex items-center justify-between mb-5 gap-3">
+        {expenses.length > 0 && !budget && (
           <p className="text-sm text-foreground/60">Total: <span className="font-bold text-foreground">{total.toFixed(2)}</span></p>
         )}
         <button onClick={() => setShowForm((v) => !v)}
-          className="ml-auto px-4 py-2 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary-dark transition-colors">
+          className="ml-auto px-4 py-2 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-primary-dark transition-colors shrink-0">
           {showForm ? 'Cancelar' : '+ Agregar gasto'}
         </button>
       </div>
+
+      {budget != null && (
+        <div className="mb-5 bg-white rounded-xl border border-foreground/8 p-4">
+          <div className="flex items-center justify-between text-sm mb-2">
+            <span className="text-foreground/60">
+              Gastado: <span className="font-bold text-foreground">{total.toFixed(2)}</span> de {budget.toFixed(2)}
+            </span>
+            <span className={`font-bold ${total > budget ? 'text-error' : 'text-foreground/60'}`}>
+              {((total / budget) * 100).toFixed(0)}%
+            </span>
+          </div>
+          <div className="w-full h-2.5 rounded-full bg-foreground/10 overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all ${total > budget ? 'bg-error' : 'bg-primary'}`}
+              style={{ width: `${Math.min((total / budget) * 100, 100)}%` }}
+            />
+          </div>
+          {total > budget && (
+            <p className="text-xs text-error mt-1.5">Te pasaste del presupuesto por {(total - budget).toFixed(2)}</p>
+          )}
+        </div>
+      )}
 
       {showForm && (
         <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-foreground/8 p-5 mb-5 flex flex-col gap-3">

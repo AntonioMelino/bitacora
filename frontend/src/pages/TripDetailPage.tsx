@@ -38,11 +38,12 @@ function EditTripModal({ trip, onClose, onUpdated }: { trip: Trip; onClose: () =
     startDate: toDateInputValue(trip.startDate),
     endDate: toDateInputValue(trip.endDate),
     isInternational: trip.isInternational,
+    budget: trip.budget,
   })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  function set(field: keyof UpdateTripRequest, value: string | boolean) {
+  function set(field: keyof UpdateTripRequest, value: string | boolean | number | null) {
     setForm((prev) => ({ ...prev, [field]: value }))
   }
 
@@ -140,6 +141,19 @@ function EditTripModal({ trip, onClose, onUpdated }: { trip: Trip; onClose: () =
             </div>
             <span className="text-sm font-medium text-foreground">¿Es un viaje internacional? 🌍</span>
           </label>
+
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-1">Presupuesto (opcional)</label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              value={form.budget ?? ''}
+              onChange={(e) => set('budget', e.target.value ? parseFloat(e.target.value) : null)}
+              placeholder="Ej: 500000"
+              className="w-full px-4 py-3 rounded-xl border border-foreground/20 text-foreground placeholder:text-foreground/35 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors"
+            />
+          </div>
 
           <button
             type="submit"
@@ -274,7 +288,7 @@ export default function TripDetailPage() {
           {/* Tab content */}
           <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-6">
             {activeTab === 'checklist'      && <ChecklistTab tripId={trip.id} />}
-            {activeTab === 'expenses'       && <ExpensesTab tripId={trip.id} />}
+            {activeTab === 'expenses'       && <ExpensesTab tripId={trip.id} budget={trip.budget} />}
             {activeTab === 'itinerary'      && <ItineraryTab tripId={trip.id} />}
             {activeTab === 'accommodations' && <AccommodationsTab tripId={trip.id} />}
             {activeTab === 'cities'         && <CitiesTab tripId={trip.id} />}

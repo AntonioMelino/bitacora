@@ -42,6 +42,7 @@ public class TripService : ITripService
             StartDate = request.StartDate,
             EndDate = request.EndDate,
             IsInternational = request.IsInternational,
+            Budget = request.Budget,
             UserId = userId
         };
 
@@ -62,6 +63,7 @@ public class TripService : ITripService
         trip.StartDate = request.StartDate;
         trip.EndDate = request.EndDate;
         trip.IsInternational = request.IsInternational;
+        trip.Budget = request.Budget;
 
         await _context.SaveChangesAsync();
 
@@ -86,6 +88,7 @@ public class TripService : ITripService
         StartDate = trip.StartDate,
         EndDate = trip.EndDate,
         IsInternational = trip.IsInternational,
+        Budget = trip.Budget,
         CreatedAt = trip.CreatedAt
     };
 }
