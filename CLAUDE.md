@@ -192,7 +192,7 @@ User (ASP.NET Core Identity)
 
 **Trip**
 - Id, Name, Description, StartDate, EndDate, IsInternational (bool),
-  CreatedAt, UserId
+  Budget (decimal, nullable), CreatedAt, UserId
 
 **Expense**
 - Id, TripId, CategoryId, Description, City, PaymentDate,
@@ -586,3 +586,4 @@ Both CLAUDE.md and CLAUDE.es.md must be updated together.
 | 2026-07-20 | feature/fix-icon-padding | Fixed a white border visible around the apple-touch-icon on iOS home screens: the source icon files had a white margin baked in around the icon graphic (5-8% of the canvas). Cropped the padding and rescaled the content to fill the full canvas edge to edge in `apple-touch-icon.png`, `android-chrome-192x192.png`, `android-chrome-512x512.png`, `favicon-32x32.png`, and `favicon-16x16.png`. |
 | 2026-07-20 | feature/title-icon | Added the app icon next to the "Bitácora ✈️" title wherever it's used as a styled logo. New shared `AppTitle` component (`frontend/src/components/ui/AppTitle.tsx`, `size` prop for the two font sizes in use) renders `favicon-32x32.png` inline with the text. Replaces the duplicated title `<span>` in `LandingPage.tsx` (nav), `LoginPage.tsx`/`RegisterPage.tsx` (logo above the form), and `DashboardPage.tsx` (header). Plain-text mentions of "Bitácora" elsewhere (footer, install prompt, landing copy) were left unchanged since they aren't the styled title. |
 | 2026-07-20 | feature/remove-unused-icons | Removed the legacy icon files superseded by the new set: `favicon.svg`, `icons.svg`, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png` deleted from `frontend/public/`. Updated `vite.config.ts` (`vite-plugin-pwa`) so `includeAssets` and the install manifest's `icons` array no longer reference the deleted files — the manifest now points at `android-chrome-192x192.png`/`android-chrome-512x512.png` (no dedicated maskable icon available anymore, so the `maskable` purpose entry was dropped rather than risk a badly-cropped Android adaptive icon). |
+| 2026-08-02 | feature/trip-budget | Added an optional per-trip budget: `Trip.Budget` (nullable decimal) on the domain entity, `CreateTripRequest`/`UpdateTripRequest`/`TripResponse` DTOs, and `TripService` mapping, plus the `AddTripBudget` migration. `NewTripModal` and `EditTripModal` gained an optional "Presupuesto" input. `ExpensesTab` now renders a spent/budget progress bar with percentage (red when overspent) whenever a trip has a budget set, falling back to the previous plain total otherwise. Budget tracking currently sums raw expense amounts regardless of currency (same simplification the existing total already had) — proper multi-currency conversion is left for a future pass. |
