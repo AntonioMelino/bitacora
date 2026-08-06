@@ -529,10 +529,13 @@ Without this the user cannot create expenses (no categories or currencies exist)
 - Assistant knows trip data (expenses, destinations, dates) to give suggestions
 - API key never exposed to the frontend
 
-**Step 7 · `feature/google-maps`** *(medium)*
-- Autocomplete with Google Places API when adding a place in CitiesTab
-- Auto-fills name and Maps link on place selection
-- Google PlaceId saved to the database (field already exists)
+**Step 7 · `feature/places-autocomplete`** *(medium)* ✅ DONE (2026-08-06)
+Implemented with a free alternative instead of Google Places API (no API key, no cost):
+- Autocomplete via the OpenStreetMap-based Photon API when adding a city or a place to visit
+- Place suggestions are biased to the city they're being added under (the city name is geocoded once, results are restricted to a ~30km radius) so e.g. "Coliseo" inside "Roma" only returns matches near Rome
+- Selecting a suggestion auto-fills a Google Maps search link built from its coordinates; places without a stored link (typed manually, or added before this feature) always show a "Ver en Maps" fallback link generated from the place name
+- No backend changes — Photon needs no secret key, so the frontend calls it directly
+- The `PlaceId` field on `PlaceToVisit` remains unused (kept for possible future use)
 
 ---
 
@@ -587,3 +590,4 @@ Both CLAUDE.md and CLAUDE.es.md must be updated together.
 | 2026-07-20 | feature/title-icon | Added the app icon next to the "Bitácora ✈️" title wherever it's used as a styled logo. New shared `AppTitle` component (`frontend/src/components/ui/AppTitle.tsx`, `size` prop for the two font sizes in use) renders `favicon-32x32.png` inline with the text. Replaces the duplicated title `<span>` in `LandingPage.tsx` (nav), `LoginPage.tsx`/`RegisterPage.tsx` (logo above the form), and `DashboardPage.tsx` (header). Plain-text mentions of "Bitácora" elsewhere (footer, install prompt, landing copy) were left unchanged since they aren't the styled title. |
 | 2026-07-20 | feature/remove-unused-icons | Removed the legacy icon files superseded by the new set: `favicon.svg`, `icons.svg`, `icon-192.png`, `icon-512.png`, `icon-maskable-512.png` deleted from `frontend/public/`. Updated `vite.config.ts` (`vite-plugin-pwa`) so `includeAssets` and the install manifest's `icons` array no longer reference the deleted files — the manifest now points at `android-chrome-192x192.png`/`android-chrome-512x512.png` (no dedicated maskable icon available anymore, so the `maskable` purpose entry was dropped rather than risk a badly-cropped Android adaptive icon). |
 | 2026-08-02 | feature/trip-budget | Added an optional per-trip budget: `Trip.Budget` (nullable decimal) on the domain entity, `CreateTripRequest`/`UpdateTripRequest`/`TripResponse` DTOs, and `TripService` mapping, plus the `AddTripBudget` migration. `NewTripModal` and `EditTripModal` gained an optional "Presupuesto" input. `ExpensesTab` now renders a spent/budget progress bar with percentage (red when overspent) whenever a trip has a budget set, falling back to the previous plain total otherwise. Budget tracking currently sums raw expense amounts regardless of currency (same simplification the existing total already had) — proper multi-currency conversion is left for a future pass. |
+| 2026-08-06 | feature/places-autocomplete | Free place autocomplete in CitiesTab, using the OpenStreetMap-based Photon API instead of Google Places (no API key, no cost). New `placeSearchService.ts` wraps Photon search, builds Google Maps links from coordinates or from a place name as fallback, and geocodes a city name to bias nearby searches. New reusable `PlaceAutocompleteInput` component (`components/ui/`) shows a suggestions dropdown, used both for adding a city and for adding a place to visit. Place suggestions are scoped to the city they're added under (city geocoded once per form open, results restricted to a ~30km bounding box), so e.g. "Coliseo" inside "Roma" only returns Rome-area matches. The "Ver en Maps" link on each place now always renders (falls back to a name-based Maps search link when no coordinates were saved) and is always positioned below the name and notes. Entirely frontend-only — no backend or database changes. |
