@@ -3,6 +3,8 @@ import {
   getCities, createCity, deleteCity, createPlace, toggleVisited, deletePlace,
   type City, type PlaceToVisit,
 } from '../services/cityService'
+import { buildMapsLink, buildMapsSearchLink, geocodeCity, type LocationBias } from '../services/placeSearchService'
+import PlaceAutocompleteInput from '../components/ui/PlaceAutocompleteInput'
 
 const inputCls = 'w-full px-3 py-2.5 rounded-xl border border-foreground/20 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary'
 
@@ -23,11 +25,9 @@ function PlaceItem({ place, tripId, cityId, onToggle, onDelete }: {
         )}
       </button>
       <div className="flex-1 min-w-0">
-        <span className={`text-sm ${place.visited ? 'line-through text-foreground/40' : 'text-foreground'}`}>{place.name}</span>
+        <span className={`block text-sm ${place.visited ? 'line-through text-foreground/40' : 'text-foreground'}`}>{place.name}</span>
         {place.notes && <p className="text-xs text-foreground/50">{place.notes}</p>}
-        {place.mapsLink && (
-          <a href={place.mapsLink} target="_blank" rel="noopener noreferrer" className="text-xs text-secondary hover:underline">Ver en Maps</a>
-        )}
+        <a href={place.mapsLink || buildMapsSearchLink(place.name)} target="_blank" rel="noopener noreferrer" className="text-xs text-secondary hover:underline">Ver en Maps</a>
       </div>
       <button onClick={() => onDelete(place.id)}
         className="opacity-0 group-hover:opacity-100 text-foreground/30 hover:text-error transition-all text-xl leading-none shrink-0">×</button>
@@ -35,11 +35,16 @@ function PlaceItem({ place, tripId, cityId, onToggle, onDelete }: {
   )
 }
 
-function AddPlaceForm({ onAdd }: { onAdd: (n: string, m: string, notes: string) => Promise<void> }) {
+function AddPlaceForm({ cityName, onAdd }: { cityName: string; onAdd: (n: string, m: string, notes: string) => Promise<void> }) {
   const [name, setName] = useState('')
   const [mapsLink, setMapsLink] = useState('')
   const [notes, setNotes] = useState('')
   const [saving, setSaving] = useState(false)
+  const [cityBias, setCityBias] = useState<LocationBias | undefined>(undefined)
+
+  useEffect(() => {
+    geocodeCity(cityName).then((bias) => setCityBias(bias ?? undefined)).catch(() => setCityBias(undefined))
+  }, [cityName])
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -50,7 +55,15 @@ function AddPlaceForm({ onAdd }: { onAdd: (n: string, m: string, notes: string) 
 
   return (
     <form onSubmit={handleSubmit} className="mt-3 flex flex-col gap-2 pl-4 border-l-2 border-foreground/10">
-      <input required placeholder="Nombre del lugar *" value={name} onChange={(e) => setName(e.target.value)} className={inputCls} />
+      <PlaceAutocompleteInput
+        required
+        placeholder="Nombre del lugar *"
+        value={name}
+        onChange={setName}
+        onSelect={(s) => { setName(s.name); setMapsLink(buildMapsLink(s.lat, s.lon)) }}
+        className={inputCls}
+        near={cityBias}
+      />
       <input placeholder="Link de Google Maps" value={mapsLink} onChange={(e) => setMapsLink(e.target.value)} className={inputCls} />
       <input placeholder="Notas" value={notes} onChange={(e) => setNotes(e.target.value)} className={inputCls} />
       <button type="submit" disabled={saving || !name.trim()}
@@ -98,7 +111,14 @@ export default function CitiesTab({ tripId }: { tripId: number }) {
       {error && <div className="mb-4 p-3 rounded-lg bg-error/10 border border-error/30 text-error text-sm">{error}</div>}
 
       <form onSubmit={handleAddCity} className="flex gap-2 mb-6">
-        <input placeholder="Agregar ciudad..." value={newCity} onChange={(e) => setNewCity(e.target.value)} className={inputCls} />
+        <PlaceAutocompleteInput
+          placeholder="Agregar ciudad..."
+          value={newCity}
+          onChange={setNewCity}
+          onSelect={(s) => setNewCity(s.name)}
+          className={inputCls}
+          wrapperClassName="relative flex-1"
+        />
         <button type="submit" disabled={adding || !newCity.trim()}
           className="px-4 py-2.5 rounded-xl bg-primary text-white font-semibold text-sm hover:bg-primary-dark disabled:opacity-50 transition-colors">
           {adding ? '...' : 'Agregar'}
@@ -138,7 +158,7 @@ export default function CitiesTab({ tripId }: { tripId: number }) {
               )}
 
               {openPlaceForm === city.id && (
-                <AddPlaceForm onAdd={(n, m, notes) => handleAddPlace(city.id, n, m, notes)} />
+                <AddPlaceForm cityName={city.name} onAdd={(n, m, notes) => handleAddPlace(city.id, n, m, notes)} />
               )}
             </div>
           ))}
