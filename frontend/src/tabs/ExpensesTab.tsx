@@ -26,6 +26,9 @@ export default function ExpensesTab({ tripId, budget }: { tripId: number; budget
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState<CreateExpenseRequest>(EMPTY)
   const [saving, setSaving] = useState(false)
+  const [search, setSearch] = useState('')
+  const [filterCategoryId, setFilterCategoryId] = useState('')
+  const [filterCurrencyId, setFilterCurrencyId] = useState('')
 
   useEffect(() => {
     Promise.all([getExpenses(tripId), getCategories(), getPaymentMethods(), getCurrencies()])
@@ -61,6 +64,18 @@ export default function ExpensesTab({ tripId, budget }: { tripId: number; budget
   }
 
   const total = expenses.reduce((s, e) => s + e.amount, 0)
+
+  const filteredExpenses = expenses.filter((exp) => {
+    const query = search.trim().toLowerCase()
+    const matchesSearch = !query
+      || exp.description.toLowerCase().includes(query)
+      || exp.city.toLowerCase().includes(query)
+    const matchesCategory = !filterCategoryId || exp.categoryId === Number(filterCategoryId)
+    const matchesCurrency = !filterCurrencyId || exp.currencyId === Number(filterCurrencyId)
+    return matchesSearch && matchesCategory && matchesCurrency
+  })
+  const hasActiveFilter = search.trim() !== '' || filterCategoryId !== '' || filterCurrencyId !== ''
+
   if (loading) return <p className="text-center py-12 text-foreground/40">Cargando...</p>
 
   return (
@@ -150,15 +165,36 @@ export default function ExpensesTab({ tripId, budget }: { tripId: number; budget
         </form>
       )}
 
+      {expenses.length > 0 && (
+        <div className="mb-4 flex flex-col sm:flex-row gap-2">
+          <input placeholder="Buscar por descripción o ciudad..." value={search}
+            onChange={(e) => setSearch(e.target.value)} className={`${inputCls} sm:flex-1`} />
+          <select value={filterCategoryId} onChange={(e) => setFilterCategoryId(e.target.value)} className={`${inputCls} sm:w-40`}>
+            <option value="">Todas las categorías</option>
+            {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+          </select>
+          <select value={filterCurrencyId} onChange={(e) => setFilterCurrencyId(e.target.value)} className={`${inputCls} sm:w-40`}>
+            <option value="">Todas las monedas</option>
+            {currencies.map((c) => <option key={c.id} value={c.id}>{c.code}</option>)}
+          </select>
+        </div>
+      )}
+
       {expenses.length === 0 ? (
         <div className="text-center py-16">
           <div className="text-5xl mb-3">💸</div>
           <p className="font-heading font-bold text-lg text-foreground mb-1">Sin gastos registrados</p>
           <p className="text-foreground/50 text-sm">Registrá tu primer gasto del viaje</p>
         </div>
+      ) : filteredExpenses.length === 0 ? (
+        <div className="text-center py-16">
+          <p className="text-foreground/50 text-sm">
+            {hasActiveFilter ? 'Ningún gasto coincide con el filtro' : 'Sin gastos registrados'}
+          </p>
+        </div>
       ) : (
         <ul className="flex flex-col gap-2">
-          {expenses.map((exp) => (
+          {filteredExpenses.map((exp) => (
             <li key={exp.id} className="bg-white rounded-xl border border-foreground/8 px-4 py-3 flex items-center gap-3 group">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
