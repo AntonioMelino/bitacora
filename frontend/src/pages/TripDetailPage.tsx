@@ -9,14 +9,16 @@ import AccommodationsTab from '../tabs/AccommodationsTab'
 import CitiesTab from '../tabs/CitiesTab'
 import SimTab from '../tabs/SimTab'
 import ItineraryTab from '../tabs/ItineraryTab'
+import StatsTab from '../tabs/StatsTab'
 
-type TabId = 'checklist' | 'expenses' | 'itinerary' | 'accommodations' | 'cities' | 'sim'
+type TabId = 'checklist' | 'expenses' | 'stats' | 'itinerary' | 'accommodations' | 'cities' | 'sim'
 
 interface Tab { id: TabId; label: string; emoji: string }
 
 const BASE_TABS: Tab[] = [
   { id: 'checklist',      label: 'Checklist',    emoji: '✅' },
   { id: 'expenses',       label: 'Gastos',        emoji: '💸' },
+  { id: 'stats',          label: 'Estadísticas',  emoji: '📊' },
   { id: 'itinerary',      label: 'Itinerario',    emoji: '🗺️' },
   { id: 'accommodations', label: 'Alojamientos',  emoji: '🏨' },
   { id: 'cities',         label: 'Ciudades',      emoji: '📍' },
@@ -289,6 +291,7 @@ export default function TripDetailPage() {
           <main className="flex-1 max-w-5xl w-full mx-auto px-4 py-6">
             {activeTab === 'checklist'      && <ChecklistTab tripId={trip.id} />}
             {activeTab === 'expenses'       && <ExpensesTab tripId={trip.id} budget={trip.budget} />}
+            {activeTab === 'stats'          && <StatsTab tripId={trip.id} />}
             {activeTab === 'itinerary'      && <ItineraryTab tripId={trip.id} />}
             {activeTab === 'accommodations' && <AccommodationsTab tripId={trip.id} />}
             {activeTab === 'cities'         && <CitiesTab tripId={trip.id} />}
