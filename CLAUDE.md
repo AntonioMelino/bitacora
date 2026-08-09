@@ -121,6 +121,7 @@ Dashboard (private)
 | AI | Anthropic API (server-side only, never exposed to frontend) |
 | Frontend | React 19 + TypeScript + Vite |
 | Styling | Tailwind CSS |
+| Maps | Leaflet + react-leaflet (OpenStreetMap tiles, no API key) |
 | PWA / Offline | vite-plugin-pwa + Workbox service workers |
 | API Deploy | Railway |
 | Frontend Deploy | Vercel |
@@ -587,7 +588,7 @@ after.
 **Step 17 · `feature/trip-duplication`** *(small)*
 - "Duplicate trip" action that copies a trip's checklist/structure (not dates) as a starting point for a new one
 
-**Step 18 · `feature/trip-map-view`** *(medium)*
+**Step 18 · `feature/trip-map-view`** *(medium)* ✅ DONE (2026-08-09)
 - Map view with pins for cities and places to visit, using the coordinates already resolved by Photon in Step 7
 
 **Step 19 · `feature/trip-sharing-readonly`** *(medium)*
@@ -658,3 +659,4 @@ Both CLAUDE.md and CLAUDE.es.md must be updated together.
 | 2026-08-06 | feature/places-autocomplete | Free place autocomplete in CitiesTab, using the OpenStreetMap-based Photon API instead of Google Places (no API key, no cost). New `placeSearchService.ts` wraps Photon search, builds Google Maps links from coordinates or from a place name as fallback, and geocodes a city name to bias nearby searches. New reusable `PlaceAutocompleteInput` component (`components/ui/`) shows a suggestions dropdown, used both for adding a city and for adding a place to visit. Place suggestions are scoped to the city they're added under (city geocoded once per form open, results restricted to a ~30km bounding box), so e.g. "Coliseo" inside "Roma" only returns Rome-area matches. The "Ver en Maps" link on each place now always renders (falls back to a name-based Maps search link when no coordinates were saved) and is always positioned below the name and notes. Entirely frontend-only — no backend or database changes. |
 | 2026-08-07 | feature/expenses-filter | Added a search bar and filters to the expenses list in `ExpensesTab.tsx`: a free-text search input (matches description or city) and two dropdowns (category, currency), shown whenever at least one expense is loaded. Filtering is entirely client-side since expenses are already held in memory — no new backend calls. The total and budget progress bar still add up all expenses (not just the filtered subset), so budget tracking isn't skewed by an active filter. Added a distinct empty-state message for when the filter matches nothing. |
 | 2026-08-08 | feature/expense-statistics | Added a "📊 Estadísticas" section to the trip menu (`StatsTab.tsx`, new `stats` entry in `TripDetailPage.tsx`'s tab list). Computes, entirely client-side from expenses already in memory, the total spent, expense count, average per expense, a spend-by-category breakdown (bar list with percentages, colors cycling through the theme tokens), and a spend-by-currency breakdown (shown only when more than one currency was used, with a note that amounts aren't converted between currencies). No backend changes, no new dependency — bars are plain Tailwind divs, same pattern as the existing budget progress bar. Also added Phase 4 ("Platform Hardening & Product Polish") to the roadmap, covering every gap identified in a full project review: automated testing, CI, password reset, refresh tokens, rate limiting, pagination, real currency conversion, receipt photos, trip duplication, a map view, read-only trip sharing, soft-delete/undo, dark mode, and offline sync conflict handling. |
+| 2026-08-09 | feature/trip-map-view | Added a "🧭 Mapa" section to the trip menu (`MapTab.tsx`, new `map` entry in `TripDetailPage.tsx`'s tab list) showing an interactive Leaflet map (OpenStreetMap tiles, no API key) with pins for every city (geocoded on the fly via the existing `geocodeCity` helper) and every place to visit that has coordinate-based data — coordinates are parsed client-side from the `mapsLink` already stored on `PlaceToVisit` (the `query=lat,lon` format `buildMapsLink` produces; places only linked by name-search fallback are skipped since no coordinates exist for them). Tapping a pin opens a popup with the name and a "Ver en Google Maps" link. New npm dependencies added and mentioned to the user before installing: `leaflet`, `react-leaflet`, `@types/leaflet` (dev). No backend or database changes — City/PlaceToVisit still don't persist their own lat/lng. |

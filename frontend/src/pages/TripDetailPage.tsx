@@ -10,8 +10,9 @@ import CitiesTab from '../tabs/CitiesTab'
 import SimTab from '../tabs/SimTab'
 import ItineraryTab from '../tabs/ItineraryTab'
 import StatsTab from '../tabs/StatsTab'
+import MapTab from '../tabs/MapTab'
 
-type TabId = 'checklist' | 'expenses' | 'stats' | 'itinerary' | 'accommodations' | 'cities' | 'sim'
+type TabId = 'checklist' | 'expenses' | 'stats' | 'itinerary' | 'accommodations' | 'cities' | 'map' | 'sim'
 
 interface Tab { id: TabId; label: string; emoji: string }
 
@@ -22,6 +23,7 @@ const BASE_TABS: Tab[] = [
   { id: 'itinerary',      label: 'Itinerario',    emoji: '🗺️' },
   { id: 'accommodations', label: 'Alojamientos',  emoji: '🏨' },
   { id: 'cities',         label: 'Ciudades',      emoji: '📍' },
+  { id: 'map',            label: 'Mapa',          emoji: '🧭' },
 ]
 const SIM_TAB: Tab = { id: 'sim', label: 'SIM/eSIM', emoji: '📱' }
 
@@ -295,6 +297,7 @@ export default function TripDetailPage() {
             {activeTab === 'itinerary'      && <ItineraryTab tripId={trip.id} />}
             {activeTab === 'accommodations' && <AccommodationsTab tripId={trip.id} />}
             {activeTab === 'cities'         && <CitiesTab tripId={trip.id} />}
+            {activeTab === 'map'            && <MapTab tripId={trip.id} />}
             {activeTab === 'sim'            && <SimTab tripId={trip.id} />}
           </main>
         </>
