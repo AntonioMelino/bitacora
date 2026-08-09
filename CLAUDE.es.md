@@ -602,6 +602,71 @@ Implementado con una alternativa gratuita en vez de Google Places API (sin API k
 - Sin cambios en el backend — Photon no necesita ninguna key secreta, así que el frontend la llama directamente
 - El campo `PlaceId` de `PlaceToVisit` queda sin usar (se conserva por si se necesita a futuro)
 
+### Fase 4 — Robustez de plataforma y pulido de producto
+
+Todo lo identificado como faltante o mejorable en una revisión completa
+del proyecto (2026-08-08), dejando afuera al asistente de IA (sigue
+siendo el Paso 6 de arriba). Ordenado aproximadamente por prioridad —
+primero lo fundacional/de seguridad, después las features de producto.
+
+**Paso 8 · `feature/expense-statistics`** *(mediano)* ✅ HECHO (2026-08-08)
+- Nueva sección "Estadísticas" en el menú del viaje
+- Desglose de gastos por categoría (lista de barras con porcentajes) y por moneda
+- Total, cantidad de gastos y promedio por gasto
+- Enteramente del lado del frontend, calculado en el cliente a partir de los gastos ya cargados en memoria — sin cambios en el backend, sin dependencias nuevas (barras hechas con divs de Tailwind, mismo patrón que la barra de presupuesto existente)
+
+**Paso 9 · `feature/testing-foundation`** *(grande)*
+- Hoy no existe ni un solo test en el repo (ni backend ni frontend)
+- Proyecto xUnit para los servicios de `Bitacora.Application` (empezar por `ExpenseService`, `ExcelExportService`)
+- Vitest + React Testing Library para el frontend, empezando por `ExpensesTab` y las utilidades de fechas
+- Establece el patrón para que las próximas features puedan sumar tests de forma incremental
+
+**Paso 10 · `feature/ci-pipeline`** *(pequeño)*
+- Workflow de GitHub Actions: `dotnet build` + `npm run build` (+ tests una vez que esté el Paso 9) en cada PR
+- Bloquea el merge cuando algún build falla
+
+**Paso 11 · `feature/password-reset`** *(mediano)*
+- Endpoints `ForgotPassword` / `ResetPassword` usando el proveedor de tokens integrado de ASP.NET Core Identity
+- El envío de email necesita elegir un proveedor (ej. Resend, SendGrid) — consultar al usuario antes de agregarlo
+- Frontend: link "¿Olvidaste tu contraseña?" en LoginPage, formulario de reseteo
+
+**Paso 12 · `feature/refresh-token`** *(pequeño)*
+- Hoy el JWT no tiene renovación — deja de funcionar silenciosamente al expirar
+- Agregar un refresh token emitido junto al JWT, endpoint `POST /api/auth/refresh`, interceptor de axios en el frontend que reintenta una vez ante un 401
+
+**Paso 13 · `feature/rate-limiting`** *(pequeño)*
+- Middleware de rate limiting integrado de ASP.NET Core, aplicado al menos a `/api/auth/*`
+
+**Paso 14 · `feature/pagination`** *(pequeño)*
+- Agregar parámetros `page`/`limit` a los endpoints de listado (empezando por gastos, que es la lista que más puede crecer)
+- No es urgente hoy dado el volumen típico de datos, pero es barato agregarlo antes de que se vuelva un problema real
+
+**Paso 15 · `feature/currency-conversion`** *(mediano)*
+- Búsqueda real de tipo de cambio (ej. el plan gratuito de exchangerate-api.com o open.er-api.com) para convertir gastos a la moneda base del viaje
+- Reemplaza la simplificación actual donde la barra de presupuesto/total suma montos crudos sin importar la moneda
+
+**Paso 16 · `feature/expense-receipt-photo`** *(mediano)*
+- Adjuntar una foto del comprobante a un gasto
+- Necesita elegir dónde guardar los archivos — Supabase Storage es la opción natural ya que la base ya está ahí
+
+**Paso 17 · `feature/trip-duplication`** *(pequeño)*
+- Acción "Duplicar viaje" que copia la estructura/checklist de un viaje (no las fechas) como punto de partida para uno nuevo
+
+**Paso 18 · `feature/trip-map-view`** *(mediano)*
+- Vista de mapa con pines de ciudades y lugares a visitar, usando las coordenadas que ya resuelve Photon en el Paso 7
+
+**Paso 19 · `feature/trip-sharing-readonly`** *(mediano)*
+- Link compartible de solo lectura para un viaje (ej. para familia) que no requiera que quien lo mira tenga cuenta
+
+**Paso 20 · `feature/soft-delete-undo`** *(pequeño)*
+- Toast breve de "Deshacer" después de borrar un gasto/ciudad/ítem en vez de un borrado inmediato y permanente
+
+**Paso 21 · `feature/dark-mode`** *(pequeño)*
+- Toggle de tema oscuro, aprovechando los tokens de color ya centralizados en `@theme`
+
+**Paso 22 · `feature/offline-sync-conflicts`** *(mediano)*
+- Definir e implementar qué pasa cuando el mismo registro se edita offline en dos dispositivos antes de sincronizar — hoy no está documentado ni manejado
+
 ---
 
 ## Lo que Claude Code NO debe hacer
@@ -657,3 +722,4 @@ Tanto CLAUDE.md como CLAUDE.es.md deben actualizarse juntos.
 | 2026-08-02 | feature/trip-budget | Se agregó un presupuesto opcional por viaje: `Trip.Budget` (decimal nullable) en la entidad de dominio, DTOs `CreateTripRequest`/`UpdateTripRequest`/`TripResponse`, y el mapeo en `TripService`, más la migración `AddTripBudget`. `NewTripModal` y `EditTripModal` ahora tienen un input opcional "Presupuesto". `ExpensesTab` muestra una barra de progreso gastado/presupuesto con porcentaje (roja si se pasó) cuando el viaje tiene presupuesto definido, y si no, muestra el total plano de antes. El cálculo suma los montos crudos de los gastos sin convertir por moneda (misma simplificación que ya tenía el total existente) — la conversión multi-moneda real queda para más adelante. |
 | 2026-08-06 | feature/places-autocomplete | Autocompletado gratuito de lugares en CitiesTab, usando la API Photon (basada en OpenStreetMap) en vez de Google Places (sin API key, sin costo). Nuevo `placeSearchService.ts` que envuelve la búsqueda de Photon, arma links de Google Maps a partir de coordenadas o de un nombre como respaldo, y geocodifica el nombre de una ciudad para acotar búsquedas cercanas. Nuevo componente reutilizable `PlaceAutocompleteInput` (`components/ui/`) que muestra un dropdown de sugerencias, usado tanto para agregar una ciudad como para agregar un lugar para visitar. Las sugerencias de lugares quedan acotadas a la ciudad en la que se agregan (se geocodifica la ciudad una vez por apertura del formulario, y los resultados se restringen a un recuadro de ~30km), así por ejemplo "Coliseo" dentro de "Roma" solo trae resultados cerca de Roma. El link "Ver en Maps" de cada lugar ahora siempre se muestra (usa un link de búsqueda por nombre como respaldo si no se guardaron coordenadas) y siempre queda posicionado debajo del nombre y las notas. Enteramente del lado del frontend — sin cambios en el backend ni en la base de datos. |
 | 2026-08-07 | feature/expenses-filter | Se agregó un buscador y filtros a la lista de gastos en `ExpensesTab.tsx`: un input de búsqueda libre (busca coincidencias en descripción o ciudad) y dos selects (categoría, moneda), visibles cuando hay al menos un gasto cargado. El filtrado es enteramente del lado del cliente, ya que los gastos ya están cargados en memoria — sin llamadas nuevas al backend. El total y la barra de progreso del presupuesto siguen calculándose sobre todos los gastos (no solo los filtrados), para que el seguimiento del presupuesto no se vea afectado por el filtro activo. Se agregó un mensaje distinto para cuando el filtro no encuentra coincidencias. |
+| 2026-08-08 | feature/expense-statistics | Se agregó una sección "📊 Estadísticas" al menú del viaje (`StatsTab.tsx`, nueva entrada `stats` en la lista de tabs de `TripDetailPage.tsx`). Calcula, enteramente del lado del cliente sobre los gastos ya cargados en memoria, el total gastado, la cantidad de gastos, el promedio por gasto, un desglose de gasto por categoría (lista de barras con porcentajes, colores que rotan entre los tokens del tema) y un desglose por moneda (se muestra solo si se usó más de una moneda, con una nota de que los montos no se convierten entre monedas). Sin cambios en el backend, sin dependencias nuevas — las barras son divs de Tailwind, mismo patrón que la barra de presupuesto existente. También se agregó la Fase 4 ("Robustez de plataforma y pulido de producto") al roadmap, cubriendo todo lo identificado como faltante en una revisión completa del proyecto: tests automatizados, CI, recuperación de contraseña, refresh tokens, rate limiting, paginación, conversión de moneda real, fotos de comprobantes, duplicación de viajes, vista de mapa, viajes compartidos de solo lectura, deshacer/soft-delete y manejo de conflictos de sincronización offline. |

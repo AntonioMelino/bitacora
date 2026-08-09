@@ -537,6 +537,71 @@ Implemented with a free alternative instead of Google Places API (no API key, no
 - No backend changes — Photon needs no secret key, so the frontend calls it directly
 - The `PlaceId` field on `PlaceToVisit` remains unused (kept for possible future use)
 
+### Phase 4 — Platform Hardening & Product Polish
+
+Everything identified as missing or improvable in a full project review
+(2026-08-08), excluding the AI assistant (still Step 6 above). Ordered
+roughly by priority — foundational/safety items first, product features
+after.
+
+**Step 8 · `feature/expense-statistics`** *(medium)* ✅ DONE (2026-08-08)
+- New "Estadísticas" section in the trip menu
+- Spend breakdown by category (bar list with percentages) and by currency
+- Total, expense count, and average per expense
+- Entirely frontend-only, computed client-side from expenses already in memory — no backend changes, no new dependency (bars built with plain Tailwind divs, same pattern as the existing budget progress bar)
+
+**Step 9 · `feature/testing-foundation`** *(large)*
+- No test exists anywhere in the repo today (backend or frontend)
+- xUnit project for `Bitacora.Application` services (start with `ExpenseService`, `ExcelExportService`)
+- Vitest + React Testing Library for the frontend, starting with `ExpensesTab` and date utils
+- Establishes the pattern so future features can add tests incrementally
+
+**Step 10 · `feature/ci-pipeline`** *(small)*
+- GitHub Actions workflow: `dotnet build` + `npm run build` (+ tests once Step 9 lands) on every PR
+- Blocks merging when either build is red
+
+**Step 11 · `feature/password-reset`** *(medium)*
+- `ForgotPassword` / `ResetPassword` endpoints using ASP.NET Core Identity's built-in token provider
+- Email delivery needs a provider decision (e.g. Resend, SendGrid) — ask the user before adding
+- Frontend: "Forgot your password?" link on LoginPage, reset form
+
+**Step 12 · `feature/refresh-token`** *(small)*
+- Today the JWT has no renewal — it silently stops working on expiry
+- Add a refresh token issued alongside the JWT, `POST /api/auth/refresh` endpoint, frontend axios interceptor to retry once on 401
+
+**Step 13 · `feature/rate-limiting`** *(small)*
+- ASP.NET Core's built-in rate limiting middleware, applied at least to `/api/auth/*`
+
+**Step 14 · `feature/pagination`** *(small)*
+- Add `page`/`limit` query params to list endpoints (expenses first, since that list can grow the most)
+- Not urgent today given typical data volume, but cheap to add now before it becomes a real problem
+
+**Step 15 · `feature/currency-conversion`** *(medium)*
+- Real exchange-rate lookup (e.g. a free tier of exchangerate-api.com or open.er-api.com) to convert expenses to a trip's base currency
+- Replaces the current simplification where the budget/total bar just sums raw amounts regardless of currency
+
+**Step 16 · `feature/expense-receipt-photo`** *(medium)*
+- Attach a photo of the receipt to an expense
+- Needs a storage decision — Supabase Storage is the natural fit since the DB is already there
+
+**Step 17 · `feature/trip-duplication`** *(small)*
+- "Duplicate trip" action that copies a trip's checklist/structure (not dates) as a starting point for a new one
+
+**Step 18 · `feature/trip-map-view`** *(medium)*
+- Map view with pins for cities and places to visit, using the coordinates already resolved by Photon in Step 7
+
+**Step 19 · `feature/trip-sharing-readonly`** *(medium)*
+- Shareable read-only link for a trip (e.g. for family) that doesn't require the viewer to have an account
+
+**Step 20 · `feature/soft-delete-undo`** *(small)*
+- Brief "Undo" toast after deleting an expense/city/item instead of immediate permanent deletion
+
+**Step 21 · `feature/dark-mode`** *(small)*
+- Dark theme toggle, building on the centralized color tokens already defined in `@theme`
+
+**Step 22 · `feature/offline-sync-conflicts`** *(medium)*
+- Define and implement what happens when the same record is edited offline on two devices before syncing — currently undocumented and unhandled
+
 ---
 
 ## What Claude Code must NOT do
@@ -592,3 +657,4 @@ Both CLAUDE.md and CLAUDE.es.md must be updated together.
 | 2026-08-02 | feature/trip-budget | Added an optional per-trip budget: `Trip.Budget` (nullable decimal) on the domain entity, `CreateTripRequest`/`UpdateTripRequest`/`TripResponse` DTOs, and `TripService` mapping, plus the `AddTripBudget` migration. `NewTripModal` and `EditTripModal` gained an optional "Presupuesto" input. `ExpensesTab` now renders a spent/budget progress bar with percentage (red when overspent) whenever a trip has a budget set, falling back to the previous plain total otherwise. Budget tracking currently sums raw expense amounts regardless of currency (same simplification the existing total already had) — proper multi-currency conversion is left for a future pass. |
 | 2026-08-06 | feature/places-autocomplete | Free place autocomplete in CitiesTab, using the OpenStreetMap-based Photon API instead of Google Places (no API key, no cost). New `placeSearchService.ts` wraps Photon search, builds Google Maps links from coordinates or from a place name as fallback, and geocodes a city name to bias nearby searches. New reusable `PlaceAutocompleteInput` component (`components/ui/`) shows a suggestions dropdown, used both for adding a city and for adding a place to visit. Place suggestions are scoped to the city they're added under (city geocoded once per form open, results restricted to a ~30km bounding box), so e.g. "Coliseo" inside "Roma" only returns Rome-area matches. The "Ver en Maps" link on each place now always renders (falls back to a name-based Maps search link when no coordinates were saved) and is always positioned below the name and notes. Entirely frontend-only — no backend or database changes. |
 | 2026-08-07 | feature/expenses-filter | Added a search bar and filters to the expenses list in `ExpensesTab.tsx`: a free-text search input (matches description or city) and two dropdowns (category, currency), shown whenever at least one expense is loaded. Filtering is entirely client-side since expenses are already held in memory — no new backend calls. The total and budget progress bar still add up all expenses (not just the filtered subset), so budget tracking isn't skewed by an active filter. Added a distinct empty-state message for when the filter matches nothing. |
+| 2026-08-08 | feature/expense-statistics | Added a "📊 Estadísticas" section to the trip menu (`StatsTab.tsx`, new `stats` entry in `TripDetailPage.tsx`'s tab list). Computes, entirely client-side from expenses already in memory, the total spent, expense count, average per expense, a spend-by-category breakdown (bar list with percentages, colors cycling through the theme tokens), and a spend-by-currency breakdown (shown only when more than one currency was used, with a note that amounts aren't converted between currencies). No backend changes, no new dependency — bars are plain Tailwind divs, same pattern as the existing budget progress bar. Also added Phase 4 ("Platform Hardening & Product Polish") to the roadmap, covering every gap identified in a full project review: automated testing, CI, password reset, refresh tokens, rate limiting, pagination, real currency conversion, receipt photos, trip duplication, a map view, read-only trip sharing, soft-delete/undo, dark mode, and offline sync conflict handling. |
