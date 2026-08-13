@@ -1,11 +1,8 @@
-import axios from 'axios'
-
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5072'
-
-const api = axios.create({ baseURL: API_URL })
+import { api } from './api'
 
 export interface AuthResponse {
   token: string
+  refreshToken: string
   email: string
   userId: string
 }
@@ -26,4 +23,17 @@ export async function register(email: string, password: string): Promise<AuthRes
   )
   if (!data.success) throw new Error(data.message ?? 'Error al registrarse')
   return data.data
+}
+
+export async function logout(): Promise<void> {
+  const refreshToken = localStorage.getItem('refreshToken')
+  if (refreshToken) {
+    try {
+      await api.post('/api/auth/logout', { refreshToken })
+    } catch {
+      // Best-effort: proceed with clearing local session even if the server call fails
+    }
+  }
+  localStorage.removeItem('token')
+  localStorage.removeItem('refreshToken')
 }

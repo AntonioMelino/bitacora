@@ -1,17 +1,7 @@
-import axios from 'axios'
-
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5108'
-
-function authHeaders() {
-  const token = localStorage.getItem('token')
-  return { Authorization: `Bearer ${token}` }
-}
-
-const api = axios.create({ baseURL: API_URL })
+import { api } from './api'
 
 export async function exportTrip(tripId: number): Promise<void> {
   const response = await api.get(`/api/trips/${tripId}/export`, {
-    headers: authHeaders(),
     responseType: 'blob',
   })
 

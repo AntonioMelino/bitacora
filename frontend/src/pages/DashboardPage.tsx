@@ -1,6 +1,7 @@
 import { useState, useEffect, type FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { getTrips, createTrip, deleteTrip, type Trip, type CreateTripRequest } from '../services/tripService'
+import { logout } from '../services/authService'
 import { alignEndDate } from '../utils/dates'
 import AppTitle from '../components/ui/AppTitle'
 
@@ -225,8 +226,8 @@ export default function DashboardPage() {
       .finally(() => setLoading(false))
   }, [navigate])
 
-  function handleLogout() {
-    localStorage.removeItem('token')
+  async function handleLogout() {
+    await logout()
     navigate('/login')
   }
 

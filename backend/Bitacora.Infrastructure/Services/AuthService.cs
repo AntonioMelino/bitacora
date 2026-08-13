@@ -1,10 +1,14 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Bitacora.Application.DTOs;
 using Bitacora.Application.Interfaces;
+using Bitacora.Domain.Entities;
 using Bitacora.Infrastructure.Identity;
+using Bitacora.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -14,11 +18,13 @@ public class AuthService : IAuthService
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IConfiguration _configuration;
+    private readonly BitacoraDbContext _db;
 
-    public AuthService(UserManager<ApplicationUser> userManager, IConfiguration configuration)
+    public AuthService(UserManager<ApplicationUser> userManager, IConfiguration configuration, BitacoraDbContext db)
     {
         _userManager = userManager;
         _configuration = configuration;
+        _db = db;
     }
 
     public async Task<AuthResponse> RegisterAsync(RegisterRequest request)
@@ -44,6 +50,7 @@ public class AuthService : IAuthService
         return new AuthResponse
         {
             Token = GenerateJwtToken(user),
+            RefreshToken = await GenerateRefreshTokenAsync(user.Id),
             Email = user.Email!,
             FullName = user.FullName
         };
@@ -61,9 +68,60 @@ public class AuthService : IAuthService
         return new AuthResponse
         {
             Token = GenerateJwtToken(user),
+            RefreshToken = await GenerateRefreshTokenAsync(user.Id),
             Email = user.Email!,
             FullName = user.FullName
         };
+    }
+
+    public async Task<AuthResponse> RefreshTokenAsync(string refreshToken)
+    {
+        var storedToken = await _db.RefreshTokens
+            .FirstOrDefaultAsync(t => t.Token == refreshToken && t.RevokedAt == null);
+
+        if (storedToken == null || storedToken.ExpiresAt < DateTime.UtcNow)
+            throw new InvalidOperationException("Refresh token inválido o expirado.");
+
+        var user = await _userManager.FindByIdAsync(storedToken.UserId)
+            ?? throw new InvalidOperationException("Usuario no encontrado.");
+
+        storedToken.RevokedAt = DateTime.UtcNow;
+
+        return new AuthResponse
+        {
+            Token = GenerateJwtToken(user),
+            RefreshToken = await GenerateRefreshTokenAsync(user.Id),
+            Email = user.Email!,
+            FullName = user.FullName
+        };
+    }
+
+    public async Task RevokeTokenAsync(string refreshToken)
+    {
+        var storedToken = await _db.RefreshTokens
+            .FirstOrDefaultAsync(t => t.Token == refreshToken && t.RevokedAt == null);
+
+        if (storedToken == null)
+            return;
+
+        storedToken.RevokedAt = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
+    }
+
+    private async Task<string> GenerateRefreshTokenAsync(string userId)
+    {
+        var refreshDays = int.Parse(_configuration["JwtSettings:RefreshTokenExpireDays"] ?? "30");
+        var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+
+        _db.RefreshTokens.Add(new RefreshToken
+        {
+            UserId = userId,
+            Token = token,
+            ExpiresAt = DateTime.UtcNow.AddDays(refreshDays)
+        });
+
+        await _db.SaveChangesAsync();
+        return token;
     }
 
     public async Task<AuthResponse> GetCurrentUserAsync(string userId)

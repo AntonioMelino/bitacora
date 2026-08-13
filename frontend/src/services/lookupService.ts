@@ -1,7 +1,4 @@
-import axios from 'axios'
-
-const api = axios.create({ baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:5108' })
-const h = () => ({ Authorization: `Bearer ${localStorage.getItem('token')}` })
+import { api } from './api'
 
 async function unwrap<T>(p: Promise<{ data: { success: boolean; data: T; message: string } }>): Promise<T> {
   const { data } = await p
@@ -14,30 +11,30 @@ export interface Currency { id: number; code: string; name: string; symbol: stri
 
 // --- Expense categories ---
 export const getCategories = () =>
-  unwrap<LookupItem[]>(api.get('/api/expense-categories', { headers: h() }))
+  unwrap<LookupItem[]>(api.get('/api/expense-categories'))
 
 export const createCategory = (name: string) =>
-  unwrap<LookupItem>(api.post('/api/expense-categories', { name }, { headers: h() }))
+  unwrap<LookupItem>(api.post('/api/expense-categories', { name }))
 
 export const deleteCategory = (id: number) =>
-  unwrap<void>(api.delete(`/api/expense-categories/${id}`, { headers: h() }))
+  unwrap<void>(api.delete(`/api/expense-categories/${id}`))
 
 // --- Payment methods ---
 export const getPaymentMethods = () =>
-  unwrap<LookupItem[]>(api.get('/api/payment-methods', { headers: h() }))
+  unwrap<LookupItem[]>(api.get('/api/payment-methods'))
 
 export const createPaymentMethod = (name: string) =>
-  unwrap<LookupItem>(api.post('/api/payment-methods', { name }, { headers: h() }))
+  unwrap<LookupItem>(api.post('/api/payment-methods', { name }))
 
 export const deletePaymentMethod = (id: number) =>
-  unwrap<void>(api.delete(`/api/payment-methods/${id}`, { headers: h() }))
+  unwrap<void>(api.delete(`/api/payment-methods/${id}`))
 
 // --- Currencies ---
 export const getCurrencies = () =>
-  unwrap<Currency[]>(api.get('/api/currencies', { headers: h() }))
+  unwrap<Currency[]>(api.get('/api/currencies'))
 
 export const createCurrency = (code: string, name: string, symbol: string) =>
-  unwrap<Currency>(api.post('/api/currencies', { code, name, symbol }, { headers: h() }))
+  unwrap<Currency>(api.post('/api/currencies', { code, name, symbol }))
 
 export const deleteCurrency = (id: number) =>
-  unwrap<void>(api.delete(`/api/currencies/${id}`, { headers: h() }))
+  unwrap<void>(api.delete(`/api/currencies/${id}`))

@@ -1,7 +1,4 @@
-import axios from 'axios'
-
-const api = axios.create({ baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:5108' })
-const h = () => ({ Authorization: `Bearer ${localStorage.getItem('token')}` })
+import { api } from './api'
 
 async function unwrap<T>(p: Promise<{ data: { success: boolean; data: T; message: string } }>): Promise<T> {
   const { data } = await p
@@ -37,10 +34,10 @@ export interface CreateItineraryItemRequest {
 }
 
 export const getItinerary = (tripId: number) =>
-  unwrap<ItineraryItem[]>(api.get(`/api/trips/${tripId}/itinerary`, { headers: h() }))
+  unwrap<ItineraryItem[]>(api.get(`/api/trips/${tripId}/itinerary`))
 
 export const createItineraryItem = (tripId: number, body: CreateItineraryItemRequest) =>
-  unwrap<ItineraryItem>(api.post(`/api/trips/${tripId}/itinerary`, body, { headers: h() }))
+  unwrap<ItineraryItem>(api.post(`/api/trips/${tripId}/itinerary`, body))
 
 export const deleteItineraryItem = (tripId: number, id: number) =>
-  unwrap<void>(api.delete(`/api/trips/${tripId}/itinerary/${id}`, { headers: h() }))
+  unwrap<void>(api.delete(`/api/trips/${tripId}/itinerary/${id}`))

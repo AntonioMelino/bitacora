@@ -1,13 +1,4 @@
-import axios from 'axios'
-
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:5108'
-
-function authHeaders() {
-  const token = localStorage.getItem('token')
-  return { Authorization: `Bearer ${token}` }
-}
-
-const api = axios.create({ baseURL: API_URL })
+import { api } from './api'
 
 export interface Trip {
   id: number
@@ -38,21 +29,21 @@ async function unwrap<T>(promise: Promise<{ data: { success: boolean; data: T; m
 }
 
 export function getTrips(): Promise<Trip[]> {
-  return unwrap(api.get('/api/trips', { headers: authHeaders() }))
+  return unwrap(api.get('/api/trips'))
 }
 
 export function getTripById(id: number): Promise<Trip> {
-  return unwrap(api.get(`/api/trips/${id}`, { headers: authHeaders() }))
+  return unwrap(api.get(`/api/trips/${id}`))
 }
 
 export function createTrip(body: CreateTripRequest): Promise<Trip> {
-  return unwrap(api.post('/api/trips', body, { headers: authHeaders() }))
+  return unwrap(api.post('/api/trips', body))
 }
 
 export function updateTrip(id: number, body: UpdateTripRequest): Promise<Trip> {
-  return unwrap(api.put(`/api/trips/${id}`, body, { headers: authHeaders() }))
+  return unwrap(api.put(`/api/trips/${id}`, body))
 }
 
 export function deleteTrip(id: number): Promise<void> {
-  return unwrap(api.delete(`/api/trips/${id}`, { headers: authHeaders() }))
+  return unwrap(api.delete(`/api/trips/${id}`))
 }
