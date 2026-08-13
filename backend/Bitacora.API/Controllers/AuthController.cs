@@ -48,6 +48,29 @@ public class AuthController : ControllerBase
         }
     }
 
+    [HttpPost("refresh")]
+    [EnableRateLimiting("auth")]
+    public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request)
+    {
+        try
+        {
+            var result = await _authService.RefreshTokenAsync(request.RefreshToken);
+            return Ok(new ApiResponse<AuthResponse> { Success = true, Data = result });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Unauthorized(new ApiResponse<AuthResponse> { Success = false, Message = ex.Message });
+        }
+    }
+
+    [HttpPost("logout")]
+    [EnableRateLimiting("auth")]
+    public async Task<IActionResult> Logout([FromBody] RefreshTokenRequest request)
+    {
+        await _authService.RevokeTokenAsync(request.RefreshToken);
+        return Ok(new ApiResponse<object> { Success = true });
+    }
+
     [HttpGet("me")]
     [Authorize]
     public async Task<IActionResult> Me()

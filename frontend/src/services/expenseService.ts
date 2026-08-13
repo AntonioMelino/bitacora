@@ -1,7 +1,4 @@
-import axios from 'axios'
-
-const api = axios.create({ baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:5108' })
-const h = () => ({ Authorization: `Bearer ${localStorage.getItem('token')}` })
+import { api } from './api'
 
 async function unwrap<T>(p: Promise<{ data: { success: boolean; data: T; message: string } }>): Promise<T> {
   const { data } = await p
@@ -43,19 +40,19 @@ export interface LookupItem { id: number; name: string }
 export interface Currency { id: number; code: string; name: string; symbol: string }
 
 export const getExpenses = (tripId: number) =>
-  unwrap<Expense[]>(api.get(`/api/trips/${tripId}/expenses`, { headers: h() }))
+  unwrap<Expense[]>(api.get(`/api/trips/${tripId}/expenses`))
 
 export const createExpense = (tripId: number, body: CreateExpenseRequest) =>
-  unwrap<Expense>(api.post(`/api/trips/${tripId}/expenses`, body, { headers: h() }))
+  unwrap<Expense>(api.post(`/api/trips/${tripId}/expenses`, body))
 
 export const deleteExpense = (tripId: number, id: number) =>
-  unwrap<void>(api.delete(`/api/trips/${tripId}/expenses/${id}`, { headers: h() }))
+  unwrap<void>(api.delete(`/api/trips/${tripId}/expenses/${id}`))
 
 export const getCategories = () =>
-  unwrap<LookupItem[]>(api.get('/api/expense-categories', { headers: h() }))
+  unwrap<LookupItem[]>(api.get('/api/expense-categories'))
 
 export const getPaymentMethods = () =>
-  unwrap<LookupItem[]>(api.get('/api/payment-methods', { headers: h() }))
+  unwrap<LookupItem[]>(api.get('/api/payment-methods'))
 
 export const getCurrencies = () =>
-  unwrap<Currency[]>(api.get('/api/currencies', { headers: h() }))
+  unwrap<Currency[]>(api.get('/api/currencies'))

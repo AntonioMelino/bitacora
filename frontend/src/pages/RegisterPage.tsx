@@ -31,6 +31,7 @@ export default function RegisterPage() {
     try {
       const auth = await register(email, password)
       localStorage.setItem('token', auth.token)
+      localStorage.setItem('refreshToken', auth.refreshToken)
       navigate('/dashboard')
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al registrarse')

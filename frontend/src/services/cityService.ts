@@ -1,7 +1,4 @@
-import axios from 'axios'
-
-const api = axios.create({ baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:5108' })
-const h = () => ({ Authorization: `Bearer ${localStorage.getItem('token')}` })
+import { api } from './api'
 
 async function unwrap<T>(p: Promise<{ data: { success: boolean; data: T; message: string } }>): Promise<T> {
   const { data } = await p
@@ -27,19 +24,19 @@ export interface City {
 }
 
 export const getCities = (tripId: number) =>
-  unwrap<City[]>(api.get(`/api/trips/${tripId}/cities`, { headers: h() }))
+  unwrap<City[]>(api.get(`/api/trips/${tripId}/cities`))
 
 export const createCity = (tripId: number, name: string) =>
-  unwrap<City>(api.post(`/api/trips/${tripId}/cities`, { name, order: 0 }, { headers: h() }))
+  unwrap<City>(api.post(`/api/trips/${tripId}/cities`, { name, order: 0 }))
 
 export const deleteCity = (tripId: number, id: number) =>
-  unwrap<void>(api.delete(`/api/trips/${tripId}/cities/${id}`, { headers: h() }))
+  unwrap<void>(api.delete(`/api/trips/${tripId}/cities/${id}`))
 
 export const createPlace = (tripId: number, cityId: number, body: { name: string; mapsLink: string; notes: string }) =>
-  unwrap<PlaceToVisit>(api.post(`/api/trips/${tripId}/cities/${cityId}/places`, { ...body, visited: false }, { headers: h() }))
+  unwrap<PlaceToVisit>(api.post(`/api/trips/${tripId}/cities/${cityId}/places`, { ...body, visited: false }))
 
 export const toggleVisited = (tripId: number, cityId: number, placeId: number) =>
-  unwrap<PlaceToVisit>(api.patch(`/api/trips/${tripId}/cities/${cityId}/places/${placeId}/visited`, {}, { headers: h() }))
+  unwrap<PlaceToVisit>(api.patch(`/api/trips/${tripId}/cities/${cityId}/places/${placeId}/visited`, {}))
 
 export const deletePlace = (tripId: number, cityId: number, placeId: number) =>
-  unwrap<void>(api.delete(`/api/trips/${tripId}/cities/${cityId}/places/${placeId}`, { headers: h() }))
+  unwrap<void>(api.delete(`/api/trips/${tripId}/cities/${cityId}/places/${placeId}`))

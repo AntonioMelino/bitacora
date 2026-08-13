@@ -1,7 +1,4 @@
-import axios from 'axios'
-
-const api = axios.create({ baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:5108' })
-const h = () => ({ Authorization: `Bearer ${localStorage.getItem('token')}` })
+import { api } from './api'
 
 async function unwrap<T>(p: Promise<{ data: { success: boolean; data: T; message: string } }>): Promise<T> {
   const { data } = await p
@@ -19,13 +16,13 @@ export interface ChecklistItem {
 }
 
 export const getChecklist = (tripId: number) =>
-  unwrap<ChecklistItem[]>(api.get(`/api/trips/${tripId}/checklist`, { headers: h() }))
+  unwrap<ChecklistItem[]>(api.get(`/api/trips/${tripId}/checklist`))
 
 export const createChecklistItem = (tripId: number, item: string) =>
-  unwrap<ChecklistItem>(api.post(`/api/trips/${tripId}/checklist`, { item, status: false, order: 0 }, { headers: h() }))
+  unwrap<ChecklistItem>(api.post(`/api/trips/${tripId}/checklist`, { item, status: false, order: 0 }))
 
 export const toggleChecklistItem = (tripId: number, id: number) =>
-  unwrap<ChecklistItem>(api.patch(`/api/trips/${tripId}/checklist/${id}/toggle`, {}, { headers: h() }))
+  unwrap<ChecklistItem>(api.patch(`/api/trips/${tripId}/checklist/${id}/toggle`, {}))
 
 export const deleteChecklistItem = (tripId: number, id: number) =>
-  unwrap<void>(api.delete(`/api/trips/${tripId}/checklist/${id}`, { headers: h() }))
+  unwrap<void>(api.delete(`/api/trips/${tripId}/checklist/${id}`))

@@ -21,4 +21,5 @@ public class BitacoraDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<City> Cities => Set<City>();
     public DbSet<PlaceToVisit> PlacesToVisit => Set<PlaceToVisit>();
     public DbSet<SimOption> SimOptions => Set<SimOption>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
 }

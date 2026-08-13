@@ -18,6 +18,7 @@ export default function LoginPage() {
     try {
       const auth = await login(email, password)
       localStorage.setItem('token', auth.token)
+      localStorage.setItem('refreshToken', auth.refreshToken)
       navigate('/dashboard')
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al iniciar sesión')
