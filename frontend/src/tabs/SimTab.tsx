@@ -3,6 +3,7 @@ import {
   getSimOptions, createSimOption, toggleDecided, deleteSimOption,
   type SimOption, type CreateSimOptionRequest,
 } from '../services/simOptionService'
+import { useUndoDelete } from '../contexts/UndoToastContext'
 
 const EMPTY: CreateSimOptionRequest = { company: '', type: 'SIM', coverage: '', notes: '' }
 const inputCls = 'w-full px-3 py-2.5 rounded-xl border border-foreground/20 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary'
@@ -14,6 +15,7 @@ export default function SimTab({ tripId }: { tripId: number }) {
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState<CreateSimOptionRequest>(EMPTY)
   const [saving, setSaving] = useState(false)
+  const scheduleDelete = useUndoDelete()
 
   useEffect(() => {
     getSimOptions(tripId)
@@ -44,9 +46,15 @@ export default function SimTab({ tripId }: { tripId: number }) {
   }
 
   function handleDelete(id: number) {
-    deleteSimOption(tripId, id)
-      .then(() => setOptions((p) => p.filter((o) => o.id !== id)))
-      .catch(() => setError('No se pudo eliminar'))
+    const index = options.findIndex((o) => o.id === id)
+    if (index === -1) return
+    const target = options[index]
+    setOptions((p) => p.filter((o) => o.id !== id))
+    scheduleDelete(
+      'Opción SIM eliminada',
+      () => deleteSimOption(tripId, id),
+      () => setOptions((p) => [...p.slice(0, index), target, ...p.slice(index)]),
+    )
   }
 
   if (loading) return <p className="text-center py-12 text-foreground/40">Cargando...</p>

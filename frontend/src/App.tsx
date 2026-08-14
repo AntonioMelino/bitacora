@@ -7,21 +7,24 @@ import TripDetailPage from './pages/TripDetailPage'
 import SettingsPage from './pages/SettingsPage'
 import OfflineBanner from './components/OfflineBanner'
 import InstallPrompt from './components/InstallPrompt'
+import { UndoToastProvider } from './contexts/UndoToastContext'
 
 export default function App() {
   return (
     <BrowserRouter>
-      <OfflineBanner />
-      <InstallPrompt />
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/trips/:id" element={<TripDetailPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
-      </Routes>
+      <UndoToastProvider>
+        <OfflineBanner />
+        <InstallPrompt />
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/trips/:id" element={<TripDetailPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </UndoToastProvider>
     </BrowserRouter>
   )
 }

@@ -3,6 +3,7 @@ import {
   getItinerary, createItineraryItem, deleteItineraryItem,
   type ItineraryItem, type CreateItineraryItemRequest,
 } from '../services/itineraryService'
+import { useUndoDelete } from '../contexts/UndoToastContext'
 
 const EMPTY: CreateItineraryItemRequest = {
   date: '', dayNumber: 1, city: '',
@@ -23,6 +24,7 @@ export default function ItineraryTab({ tripId }: { tripId: number }) {
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState<CreateItineraryItemRequest>(EMPTY)
   const [saving, setSaving] = useState(false)
+  const scheduleDelete = useUndoDelete()
 
   useEffect(() => {
     getItinerary(tripId)
@@ -47,9 +49,15 @@ export default function ItineraryTab({ tripId }: { tripId: number }) {
   }
 
   function handleDelete(id: number) {
-    deleteItineraryItem(tripId, id)
-      .then(() => setItems((p) => p.filter((i) => i.id !== id)))
-      .catch(() => setError('No se pudo eliminar el día'))
+    const index = items.findIndex((i) => i.id === id)
+    if (index === -1) return
+    const target = items[index]
+    setItems((p) => p.filter((i) => i.id !== id))
+    scheduleDelete(
+      'Día eliminado',
+      () => deleteItineraryItem(tripId, id),
+      () => setItems((p) => [...p.slice(0, index), target, ...p.slice(index)]),
+    )
   }
 
   if (loading) return <p className="text-center py-12 text-foreground/40">Cargando...</p>
