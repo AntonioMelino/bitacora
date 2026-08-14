@@ -4,6 +4,7 @@ import {
   getExpenses, createExpense, deleteExpense, getCategories, getPaymentMethods, getCurrencies,
   type Expense, type CreateExpenseRequest, type LookupItem, type Currency,
 } from '../services/expenseService'
+import { useUndoDelete } from '../contexts/UndoToastContext'
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' })
@@ -29,6 +30,7 @@ export default function ExpensesTab({ tripId, budget }: { tripId: number; budget
   const [search, setSearch] = useState('')
   const [filterCategoryId, setFilterCategoryId] = useState('')
   const [filterCurrencyId, setFilterCurrencyId] = useState('')
+  const scheduleDelete = useUndoDelete()
 
   useEffect(() => {
     Promise.all([getExpenses(tripId), getCategories(), getPaymentMethods(), getCurrencies()])
@@ -58,9 +60,15 @@ export default function ExpensesTab({ tripId, budget }: { tripId: number; budget
   }
 
   function handleDelete(id: number) {
-    deleteExpense(tripId, id)
-      .then(() => setExpenses((p) => p.filter((e) => e.id !== id)))
-      .catch(() => setError('No se pudo eliminar'))
+    const index = expenses.findIndex((e) => e.id === id)
+    if (index === -1) return
+    const target = expenses[index]
+    setExpenses((p) => p.filter((e) => e.id !== id))
+    scheduleDelete(
+      'Gasto eliminado',
+      () => deleteExpense(tripId, id),
+      () => setExpenses((p) => [...p.slice(0, index), target, ...p.slice(index)]),
+    )
   }
 
   const total = expenses.reduce((s, e) => s + e.amount, 0)

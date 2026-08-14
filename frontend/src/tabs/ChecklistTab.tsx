@@ -3,6 +3,7 @@ import {
   getChecklist, createChecklistItem, toggleChecklistItem, deleteChecklistItem,
   type ChecklistItem,
 } from '../services/checklistService'
+import { useUndoDelete } from '../contexts/UndoToastContext'
 
 export default function ChecklistTab({ tripId }: { tripId: number }) {
   const [items, setItems] = useState<ChecklistItem[]>([])
@@ -10,6 +11,7 @@ export default function ChecklistTab({ tripId }: { tripId: number }) {
   const [error, setError] = useState('')
   const [newItem, setNewItem] = useState('')
   const [adding, setAdding] = useState(false)
+  const scheduleDelete = useUndoDelete()
 
   useEffect(() => {
     getChecklist(tripId)
@@ -40,9 +42,15 @@ export default function ChecklistTab({ tripId }: { tripId: number }) {
   }
 
   function handleDelete(id: number) {
-    deleteChecklistItem(tripId, id)
-      .then(() => setItems((prev) => prev.filter((i) => i.id !== id)))
-      .catch(() => setError('No se pudo eliminar el ítem'))
+    const index = items.findIndex((i) => i.id === id)
+    if (index === -1) return
+    const target = items[index]
+    setItems((prev) => prev.filter((i) => i.id !== id))
+    scheduleDelete(
+      'Ítem eliminado',
+      () => deleteChecklistItem(tripId, id),
+      () => setItems((prev) => [...prev.slice(0, index), target, ...prev.slice(index)]),
+    )
   }
 
   const done = items.filter((i) => i.status).length

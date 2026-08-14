@@ -4,6 +4,7 @@ import {
   type Accommodation, type CreateAccommodationRequest,
 } from '../services/accommodationService'
 import { alignEndDate } from '../utils/dates'
+import { useUndoDelete } from '../contexts/UndoToastContext'
 
 const EMPTY: CreateAccommodationRequest = { name: '', address: '', city: '', checkIn: '', checkOut: '', observations: '' }
 const inputCls = 'w-full px-3 py-2.5 rounded-xl border border-foreground/20 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary'
@@ -19,6 +20,7 @@ export default function AccommodationsTab({ tripId }: { tripId: number }) {
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState<CreateAccommodationRequest>(EMPTY)
   const [saving, setSaving] = useState(false)
+  const scheduleDelete = useUndoDelete()
 
   useEffect(() => {
     getAccommodations(tripId)
@@ -40,6 +42,18 @@ export default function AccommodationsTab({ tripId }: { tripId: number }) {
       setForm(EMPTY); setShowForm(false); setError('')
     } catch { setError('No se pudo guardar el alojamiento') }
     finally { setSaving(false) }
+  }
+
+  function handleDelete(id: number) {
+    const index = items.findIndex((i) => i.id === id)
+    if (index === -1) return
+    const target = items[index]
+    setItems((p) => p.filter((i) => i.id !== id))
+    scheduleDelete(
+      'Alojamiento eliminado',
+      () => deleteAccommodation(tripId, id),
+      () => setItems((p) => [...p.slice(0, index), target, ...p.slice(index)]),
+    )
   }
 
   if (loading) return <p className="text-center py-12 text-foreground/40">Cargando...</p>
@@ -102,7 +116,7 @@ export default function AccommodationsTab({ tripId }: { tripId: number }) {
                   <p className="text-sm text-foreground/60 mt-1">🗓️ {formatDate(item.checkIn)} → {formatDate(item.checkOut)}</p>
                   {item.observations && <p className="text-xs text-foreground/50 mt-1 italic">{item.observations}</p>}
                 </div>
-                <button onClick={() => deleteAccommodation(tripId, item.id).then(() => setItems((p) => p.filter((i) => i.id !== item.id))).catch(() => setError('No se pudo eliminar'))}
+                <button onClick={() => handleDelete(item.id)}
                   className="opacity-0 group-hover:opacity-100 text-foreground/30 hover:text-error transition-all text-xl leading-none shrink-0">×</button>
               </div>
             </li>

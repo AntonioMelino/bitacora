@@ -5,6 +5,7 @@ import {
 } from '../services/cityService'
 import { buildMapsLink, buildMapsSearchLink, geocodeCity, type LocationBias } from '../services/placeSearchService'
 import PlaceAutocompleteInput from '../components/ui/PlaceAutocompleteInput'
+import { useUndoDelete } from '../contexts/UndoToastContext'
 
 const inputCls = 'w-full px-3 py-2.5 rounded-xl border border-foreground/20 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary'
 
@@ -81,6 +82,7 @@ export default function CitiesTab({ tripId }: { tripId: number }) {
   const [newCity, setNewCity] = useState('')
   const [adding, setAdding] = useState(false)
   const [openPlaceForm, setOpenPlaceForm] = useState<number | null>(null)
+  const scheduleDelete = useUndoDelete()
 
   useEffect(() => {
     getCities(tripId).then(setCities).catch(() => setError('No se pudieron cargar las ciudades')).finally(() => setLoading(false))
@@ -102,6 +104,33 @@ export default function CitiesTab({ tripId }: { tripId: number }) {
     const place = await createPlace(tripId, cityId, { name, mapsLink, notes })
     setCities((p) => p.map((c) => c.id === cityId ? { ...c, places: [...c.places, place] } : c))
     setOpenPlaceForm(null)
+  }
+
+  function handleDeleteCity(id: number) {
+    const index = cities.findIndex((c) => c.id === id)
+    if (index === -1) return
+    const target = cities[index]
+    setCities((p) => p.filter((c) => c.id !== id))
+    scheduleDelete(
+      'Ciudad eliminada',
+      () => deleteCity(tripId, id),
+      () => setCities((p) => [...p.slice(0, index), target, ...p.slice(index)]),
+    )
+  }
+
+  function handleDeletePlace(cityId: number, placeId: number) {
+    const city = cities.find((c) => c.id === cityId)
+    const index = city ? city.places.findIndex((pl) => pl.id === placeId) : -1
+    if (!city || index === -1) return
+    const target = city.places[index]
+    setCities((p) => p.map((c) => c.id === cityId ? { ...c, places: c.places.filter((pl) => pl.id !== placeId) } : c))
+    scheduleDelete(
+      'Lugar eliminado',
+      () => deletePlace(tripId, cityId, placeId),
+      () => setCities((p) => p.map((c) => c.id === cityId
+        ? { ...c, places: [...c.places.slice(0, index), target, ...c.places.slice(index)] }
+        : c)),
+    )
   }
 
   if (loading) return <p className="text-center py-12 text-foreground/40">Cargando...</p>
@@ -142,7 +171,7 @@ export default function CitiesTab({ tripId }: { tripId: number }) {
                     className="text-xs px-3 py-1.5 rounded-lg bg-secondary/10 text-secondary font-semibold hover:bg-secondary/20 transition-colors">
                     + Lugar
                   </button>
-                  <button onClick={() => deleteCity(tripId, city.id).then(() => setCities((p) => p.filter((c) => c.id !== city.id))).catch(() => setError('No se pudo eliminar'))}
+                  <button onClick={() => handleDeleteCity(city.id)}
                     className="text-foreground/30 hover:text-error transition-colors text-xl leading-none">×</button>
                 </div>
               </div>
@@ -152,7 +181,7 @@ export default function CitiesTab({ tripId }: { tripId: number }) {
                   {city.places.map((place) => (
                     <PlaceItem key={place.id} place={place} tripId={tripId} cityId={city.id}
                       onToggle={(updated) => setCities((p) => p.map((c) => c.id === city.id ? { ...c, places: c.places.map((pl) => pl.id === updated.id ? updated : pl) } : c))}
-                      onDelete={(placeId) => deletePlace(tripId, city.id, placeId).then(() => setCities((p) => p.map((c) => c.id === city.id ? { ...c, places: c.places.filter((pl) => pl.id !== placeId) } : c))).catch(() => setError('No se pudo eliminar'))} />
+                      onDelete={(placeId) => handleDeletePlace(city.id, placeId)} />
                   ))}
                 </ul>
               )}
