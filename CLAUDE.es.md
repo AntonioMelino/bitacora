@@ -450,7 +450,65 @@ cd frontend && npm run dev
 
 # Build del frontend para producción
 cd frontend && npm run build
+
+# Correr los tests del backend
+cd backend && dotnet test
+
+# Correr los tests del frontend
+cd frontend && npm run test
+
+# Correr los tests del frontend con reporte de cobertura
+cd frontend && npm run test:coverage
 ```
+
+---
+
+## Testing
+
+**Backend** — `Bitacora.Infrastructure.Tests` (xUnit), un proyecto hermano de
+`Bitacora.Infrastructure` dentro de `backend/`. Referencia directamente a
+`Bitacora.Infrastructure` (que arrastra transitivamente a `Bitacora.Application`
+y `Bitacora.Domain`), así que un solo proyecto de tests cubre las tres capas.
+Los servicios se testean contra un `BitacoraDbContext` real respaldado por una
+base SQLite en memoria (`Microsoft.EntityFrameworkCore.Sqlite`,
+`DataSource=:memory:`, `EnsureCreated()` — nunca `Migrate()`, ya que las
+migraciones existentes son específicas de Npgsql) en vez de mocks, porque
+cada servicio recibe el `DbContext` concreto por constructor sin ninguna
+interfaz de repositorio que mockear. Limitación conocida: SQLite no
+reproduce comportamiento específico de Postgres (p. ej. la semántica de
+`timestamp with/without time zone`), así que esta suite no habría atrapado
+el incidente de migration drift del 2026-07-02 — valida lógica de negocio y
+aislación de datos entre usuarios, no la traducción específica de Postgres.
+- Fixtures: `Bitacora.Infrastructure.Tests/Common/TestDbContextFactory.cs`
+  (una base en memoria nueva por test), `Common/TestData.cs` (builders de entidades)
+- Convención de nombres: `MetodoAtestear_Escenario_ResultadoEsperado`
+  (ej. `CreateAsync_WhenTripBelongsToAnotherUser_ThrowsInvalidOperationException`)
+- Estructura: Arrange-Act-Assert, con comentarios de sección
+
+**Frontend** — Vitest + React Testing Library, configurado en
+`frontend/vitest.config.ts` (separado de `vite.config.ts` para que el plugin
+de PWA/service worker nunca corra durante los tests). Los archivos de test
+están co-ubicados junto al código que testean (`dates.ts` → `dates.test.ts`,
+`ExpensesTab.tsx` → `ExpensesTab.test.tsx`), no en una carpeta `__tests__/`
+separada. `frontend/src/test/setup.ts` configura `@testing-library/jest-dom`
+y `frontend/src/test/renderWithProviders.tsx` envuelve un componente en
+`MemoryRouter` + `UndoToastProvider` (requerido por cualquier tab que use
+`<Link>` o `useUndoDelete()`). El array `types` de `tsconfig.app.json`
+incluye `vitest/globals` y `@testing-library/jest-dom` para que `tsc -b`
+(parte de `npm run build`) type-cheque los archivos de test en vez de fallar
+por ellos. Limitación conocida: el scheduler de React 19 recurre a un
+`setTimeout` simple bajo jsdom, así que `vi.useFakeTimers()` congela el
+propio ciclo de commits de React, no solo los timers de la app — los tests
+que necesitan observar una demora real (ej. la ventana de 5s de deshacer en
+`ExpensesTab.test.tsx`) usan timers reales con un timeout de test extendido
+en vez de fakear el reloj.
+
+Ninguna de las dos suites impone todavía un umbral de cobertura del 80% en
+el CI — el Step 9 estableció el patrón de punta a punta (incluyendo los
+pasos de test del CI de abajo) arrancando desde `ExpenseService`/
+`ExcelExportService` en el backend y `alignEndDate`/`ExpensesTab` en el
+frontend; la cobertura crece incrementalmente a medida que futuras features
+suman sus propios tests.
 
 ---
 
@@ -618,7 +676,9 @@ primero lo fundacional/de seguridad, después las features de producto.
 
 **Paso 9 · `feature/testing-foundation`** *(grande)*
 - Hoy no existe ni un solo test en el repo (ni backend ni frontend)
-- Proyecto xUnit para los servicios de `Bitacora.Application` (empezar por `ExpenseService`, `ExcelExportService`)
+- Proyecto xUnit `Bitacora.Infrastructure.Tests` (las implementaciones de los servicios
+  viven en `Bitacora.Infrastructure`, no en `Bitacora.Application`, que solo tiene
+  DTOs/interfaces), empezando por `ExpenseService` y `ExcelExportService`
 - Vitest + React Testing Library para el frontend, empezando por `ExpensesTab` y las utilidades de fechas
 - Establece el patrón para que las próximas features puedan sumar tests de forma incremental
 
@@ -668,6 +728,19 @@ primero lo fundacional/de seguridad, después las features de producto.
 
 **Paso 22 · `feature/offline-sync-conflicts`** *(mediano)*
 - Definir e implementar qué pasa cuando el mismo registro se edita offline en dos dispositivos antes de sincronizar — hoy no está documentado ni manejado
+
+**Paso 23 · `fix/known-issues-from-testing-foundation`** *(pequeño)*
+Confirmados al armar la suite de tests del Paso 9 (2026-08-14) — no se
+arreglaron ahí a propósito, para mantener esa rama enfocada solo en
+infraestructura.
+- `ExpensesTab`: un presupuesto de viaje igual a `0` hace que la barra de
+  progreso muestre `Infinity%` en vez de un valor razonable (división por
+  cero en `(total / budget) * 100`). Reproducido con un test en
+  `ExpensesTab.test.tsx` que documenta el comportamiento actual
+- `Bitacora.API`: `Microsoft.OpenApi 2.0.0` tiene una vulnerabilidad de
+  gravedad alta conocida ([GHSA-v5pm-xwqc-g5wc](https://github.com/advisories/GHSA-v5pm-xwqc-g5wc)),
+  marcada por `dotnet build` (`NU1903`); necesita un bump de versión,
+  preexistente antes de la rama de testing-foundation
 
 ---
 
