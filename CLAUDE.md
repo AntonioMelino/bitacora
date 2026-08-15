@@ -395,7 +395,62 @@ cd frontend && npm run dev
 
 # Build frontend for production
 cd frontend && npm run build
+
+# Run backend tests
+cd backend && dotnet test
+
+# Run frontend tests
+cd frontend && npm run test
+
+# Run frontend tests with coverage report
+cd frontend && npm run test:coverage
 ```
+
+---
+
+## Testing
+
+**Backend** — `Bitacora.Infrastructure.Tests` (xUnit), a project sibling to
+`Bitacora.Infrastructure` inside `backend/`. It references `Bitacora.Infrastructure`
+directly (which pulls in `Bitacora.Application` and `Bitacora.Domain`
+transitively), so this single project covers all three layers. Services are
+tested against a real `BitacoraDbContext` backed by a SQLite in-memory
+database (`Microsoft.EntityFrameworkCore.Sqlite`, `DataSource=:memory:`,
+`EnsureCreated()` — never `Migrate()`, since the existing migrations are
+Npgsql-specific) instead of mocks, because every service takes the concrete
+`DbContext` by constructor with no repository interface to mock. Known
+limitation: SQLite doesn't reproduce Postgres-specific behavior (e.g.
+`timestamp with/without time zone` semantics), so this suite would not have
+caught the migration drift incident from 2026-07-02 — it validates business
+logic and multi-user data isolation, not Postgres-specific translation.
+- Fixtures: `Bitacora.Infrastructure.Tests/Common/TestDbContextFactory.cs` (one
+  fresh in-memory database per test), `Common/TestData.cs` (entity builders)
+- Naming convention: `MethodName_Scenario_ExpectedResult`
+  (e.g. `CreateAsync_WhenTripBelongsToAnotherUser_ThrowsInvalidOperationException`)
+- Structure: Arrange-Act-Assert, with section comments
+
+**Frontend** — Vitest + React Testing Library, configured in
+`frontend/vitest.config.ts` (kept separate from `vite.config.ts` so the
+PWA/service-worker plugin never runs during test runs). Test files are
+co-located next to the code they test (`dates.ts` → `dates.test.ts`,
+`ExpensesTab.tsx` → `ExpensesTab.test.tsx`), not in a separate `__tests__/`
+folder. `frontend/src/test/setup.ts` wires up `@testing-library/jest-dom`
+and `frontend/src/test/renderWithProviders.tsx` wraps a component in
+`MemoryRouter` + `UndoToastProvider` (required by any tab that uses
+`<Link>` or `useUndoDelete()`). `tsconfig.app.json`'s `types` array includes
+`vitest/globals` and `@testing-library/jest-dom` so `tsc -b` (part of
+`npm run build`) type-checks test files instead of erroring on them.
+Known limitation: React 19's scheduler falls back to a bare `setTimeout`
+under jsdom, so `vi.useFakeTimers()` freezes React's own commit loop, not
+just app timers — tests that need to observe a real delay (e.g. the 5s
+undo window in `ExpensesTab.test.tsx`) use real timers with an extended
+per-test timeout instead of faking the clock.
+
+Neither suite enforces an 80% coverage gate in CI yet — Step 9 established
+the pattern end-to-end (including the CI test steps below) starting from
+`ExpenseService`/`ExcelExportService` on the backend and `alignEndDate`/
+`ExpensesTab` on the frontend; coverage grows incrementally as future
+features add their own tests.
 
 ---
 
@@ -553,7 +608,9 @@ after.
 
 **Step 9 · `feature/testing-foundation`** *(large)*
 - No test exists anywhere in the repo today (backend or frontend)
-- xUnit project for `Bitacora.Application` services (start with `ExpenseService`, `ExcelExportService`)
+- xUnit project `Bitacora.Infrastructure.Tests` (the service implementations live in
+  `Bitacora.Infrastructure`, not `Bitacora.Application`, which only holds DTOs/interfaces),
+  starting with `ExpenseService` and `ExcelExportService`
 - Vitest + React Testing Library for the frontend, starting with `ExpensesTab` and date utils
 - Establishes the pattern so future features can add tests incrementally
 
@@ -603,6 +660,18 @@ after.
 
 **Step 22 · `feature/offline-sync-conflicts`** *(medium)*
 - Define and implement what happens when the same record is edited offline on two devices before syncing — currently undocumented and unhandled
+
+**Step 23 · `fix/known-issues-from-testing-foundation`** *(small)*
+Confirmed while building Step 9's test suite (2026-08-14) — not fixed there on
+purpose, to keep that branch infrastructure-only.
+- `ExpensesTab`: a trip budget of exactly `0` makes the progress bar render
+  `Infinity%` instead of a sane value (division by zero in
+  `(total / budget) * 100`). Reproduced by a test in `ExpensesTab.test.tsx`
+  that documents the current behavior
+- `Bitacora.API`: `Microsoft.OpenApi 2.0.0` has a known high-severity
+  vulnerability ([GHSA-v5pm-xwqc-g5wc](https://github.com/advisories/GHSA-v5pm-xwqc-g5wc)),
+  flagged by `dotnet build` (`NU1903`); needs a version bump, pre-existing
+  before the testing-foundation branch
 
 ---
 
