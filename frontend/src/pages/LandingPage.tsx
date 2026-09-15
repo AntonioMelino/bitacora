@@ -127,7 +127,15 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="text-center py-8 text-sm text-foreground/40">
-        Bitácora © 2026 — Hecho con ❤️ por Antonio Melino
+        © 2026 Bitácora. Todos los derechos reservados.{' '}
+        <a
+          href="https://www.antoniomelino.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="no-underline hover:text-foreground/60"
+        >
+          Hecho por AM Estudio
+        </a>
       </footer>
     </div>
   )
