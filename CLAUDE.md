@@ -512,6 +512,15 @@ from `main` and confirmed working end to end (register/login tested).
   (keys aren't persisted across container restarts — harmless today
   since login uses JWT with its own secret, would only matter if
   password-reset/2FA tokens are added later)
+- **Known blocking issue: Supabase free-tier auto-pause.** If the
+  Supabase project sits idle for a while, Supabase pauses it. The next
+  deploy or restart then crashes during `dbContext.Database.Migrate()`
+  with `Npgsql.PostgresException: XX000: (ENOTFOUND) tenant/user
+  postgres.<project-ref> not found` — this exact message means the
+  project is paused (or its ref/credentials no longer match), not a
+  code or connection-string bug. Fix: open the Supabase dashboard for
+  the project, click "Restore project" / "Resume", then trigger a
+  Railway redeploy (or wait for its automatic restart)
 
 **Frontend (Vercel)** — https://bitacora-travel.vercel.app
 - Root Directory: `frontend`

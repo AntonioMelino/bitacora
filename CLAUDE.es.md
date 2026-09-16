@@ -579,6 +579,16 @@ desplegados desde `main` y confirmados funcionando de punta a punta
   reinicios del contenedor — inofensivo hoy porque el login usa JWT
   con secreto propio, solo importaría si más adelante se agrega
   reseteo de contraseña o 2FA)
+- **Problema conocido y bloqueante: auto-pausa del plan free de
+  Supabase.** Si el proyecto de Supabase queda inactivo un tiempo,
+  Supabase lo pausa. El siguiente deploy o restart crashea durante
+  `dbContext.Database.Migrate()` con `Npgsql.PostgresException: XX000:
+  (ENOTFOUND) tenant/user postgres.<project-ref> not found` — este
+  mensaje exacto significa que el proyecto está pausado (o que su ref/
+  credenciales ya no coinciden), no un bug de código ni del connection
+  string. Solución: entrar al dashboard de Supabase del proyecto,
+  click en "Restore project" / "Resume", y después disparar un
+  redeploy en Railway (o esperar su restart automático)
 
 **Frontend (Vercel)** — https://bitacora-travel.vercel.app
 - Root Directory: `frontend`
